@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <assert.h>
 
 const int TEST_SIZE = 10;
 const int OP_COUNT = 5;
@@ -23,6 +24,7 @@ const size_t max_index = (sizeof(charset) - 1);
 std::string random_string(size_t length) {
     auto randchar = []() -> char { return charset[rand() % max_index]; };
 
+    assert(length > 0);
     std::string str(length, 0);
     std::generate_n(str.begin(), length, randchar);
     return str;
@@ -57,7 +59,6 @@ int main() {
     srand(0);
 
     kvStore kv(STORE_SIZE);
-    string k, v;
     mpss m;
     int get_index, del_index;
 
@@ -90,10 +91,10 @@ int main() {
                     std::cout << "store empty\n";
                 }
                 break;
-            case 1:
+            case 1: {
                 // test kvStore->put
-                k = random_string(KEY_SIZE);
-                v = random_string(KEY_SIZE);
+                string k = random_string(KEY_SIZE);
+                string v = random_string(KEY_SIZE);
 
                 key_slice.data = &k[0];
                 val_slice.data = &v[0];
@@ -102,13 +103,14 @@ int main() {
                           << " val: " << val_slice.data << " ";
 
                 if (kv.put(key_slice, val_slice)) {
-                    std::cout << "new write\n";
-                } else {
                     std::cout << "rewrite\n";
+                } else {
+                    std::cout << "new write\n";
                 }
 
                 m[key_slice] = val_slice;
                 break;
+            }
             case 2:
                 // test kvStore->del
                 std::cout << "[DEL] key: " << key_slice.data
