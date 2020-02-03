@@ -44,7 +44,7 @@ int main() {
                 std::cout << "[GET] ";
                 if (m.size()) {
                     key_slice.data = m[m.begin() + rand() % m.size() - 1];
-                    if (kv->get(key_slice, val_slice)) {
+                    if (kv.get(key_slice, val_slice)) {
                         if (m[key_slice] == val_slice)
                             std::cout << "key: " << key_slice.data
                                       << " val: " << val_slice.data
@@ -62,9 +62,10 @@ int main() {
                 }
             case 1:
                 // test kvStore->put
-                key_slice.data = random_string();
-                val_slice.data = random_string();
-                if (kv->put(key_slice, val_slice)) {
+                key_slice.data = random_string(KEY_SIZE);
+                val_slice.data = random_string(KEY_SIZE);
+
+                if (kv.put(key_slice, val_slice)) {
                     std::cout << "[PUT] key: " << key_slice.data
                               << " val: " << val_slice.data << " succeeded\n";
                     m[key_slice] = val_slice;
@@ -76,7 +77,7 @@ int main() {
                 // test kvStore->del
                 if (m.size()) {
                     key_slice.data = m[m.begin() + rand() % m.size() - 1];
-                    if (kv->del(key_slice)) {
+                    if (kv.del(key_slice)) {
                         std::cout << "[DEL] key: " << key_slice.data
                                   << " val: " << val_slice.data
                                   << " succeeded\n";
@@ -90,9 +91,9 @@ int main() {
                 }
             case 3:
                 // test kvStore->get at index
-                if (n.size()) {
+                if (m.size()) {
                     int get_index = rand() % n.size();
-                    if (kv->get(get_index, key_slice, val_slice)) {
+                    if (kv.get(get_index, key_slice, val_slice)) {
                         if (m[m.begin() + get_index - 1] == val_slice)
                             std::cout << "[GET] "
                                       << "index: " << get_index
@@ -119,8 +120,8 @@ int main() {
                 if (m.size()) {
                     int del_index = rand() % m.size();
                     // kv->get needed for debug logs
-                    if (kv->get(del_index, key_slice, val_slice) &&
-                        kv->del(del_index)) {
+                    if (kv.get(del_index, key_slice, val_slice) &&
+                        kv.del(del_index)) {
                         std::cout << "[DEL] "
                                   << "index: " << get_index
                                   << " key: " << key_slice.data
