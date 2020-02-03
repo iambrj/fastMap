@@ -10,6 +10,10 @@ struct Slice {
 bool operator==(const Slice &a, const Slice &b) {
     return b.size == a.size && strcmp(a.data, b.data) == 0;
 }
+
+bool operator<(const Slice &a, const Slice &b) {
+    return strcmp(a.data, b.data);
+}
 class kvStore {
     typedef map<string, string> mpss;
 

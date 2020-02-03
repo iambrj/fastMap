@@ -56,6 +56,7 @@ int main() {
     kvStore kv(STORE_SIZE);
     string k, v;
     mpss m;
+    int get_index, del_index;
 
     for (int i = 0; i < TEST_SIZE; i++) {
         Slice key_slice, val_slice;
@@ -124,7 +125,7 @@ int main() {
                 break;
             case 3:
                 // test kvStore->get at index
-                int get_index = getRandomIndex(m);
+                get_index = getRandomIndex(m);
                 std::cout << "[GET] "
                           << "index: " << get_index
                           << " key: " << key_slice.data
@@ -147,7 +148,7 @@ int main() {
                 break;
             case 4:
                 // test kvStore->del at index
-                int del_index = getRandomIndex(m);
+                del_index = getRandomIndex(m);
                 std::cout << "[DEL] "
                           << "index: " << del_index
                           << " key: " << key_slice.data
