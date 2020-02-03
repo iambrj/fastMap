@@ -14,7 +14,7 @@ bool operator==(const Slice &a, const Slice &b) {
 bool operator<(const Slice &a, const Slice &b) {
     return strcmp(a.data, b.data);
 }
-class kvStore {
+class kvStoreBaseline {
     typedef map<string, string> mpss;
 
    private:
@@ -51,7 +51,7 @@ class kvStore {
     }
 
    public:
-    kvStore(uint64_t max_entries) {
+    kvStoreBaseline(uint64_t max_entries) {
         // WE ARE NOT utilizing max_entries in this
     }
 
