@@ -13,6 +13,10 @@
 - We intend to keep a mutex to ensure that no more than one transaction occurs simultaneously, i.e., no race conditions.
 - **Is our application parallelized??**
 
+## Data augmentation
+
+- how can we augment our data to better suit our needs?
+
 ## Trie based approach
 
 - A trie is a data structure that keeps pointers to the its children, and each transition to a child represents one letter being added to the currently processed string. 
@@ -28,3 +32,14 @@
   - `delete(int n)` - same as above
 
 - Each of these methods may also have significant overhead due to having to convert to and from a `Slice` object. **FIGURE THIS OUT?**
+
+## Memory pooling?
+
+Kuch likho
+
+## Btree?
+
+In B+tree, you store the values in random order in some memory area, and then index the keys in a **b**alanced **tree**. So, at each step, you have two separators and three children, and then you go into one of the children depending on which side of the separators you lie at.
+What's the problem with this? Why can't we use it?
+
+- It is possible to quickly define the comparator required for the ordering of the key in the indexes?
