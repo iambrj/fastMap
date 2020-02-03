@@ -50,15 +50,15 @@ auto getNthIterator(const map<T, T> &mp, int n) {
     return mp.end();
 }
 
-typedef std::map<Slice, Slice> mpss;
-
-int getRandomIndex(const mpss &mp) {
+template <typename T>
+int getRandomIndex(const map<T, T> &mp) {
     if (mp.empty())
         return -1;
     return rand() % ((int)mp.size());
 }
 
-auto getRandomIterator(const mpss &mp) {
+template <typename T>
+auto getRandomIterator(const map<T, T> &mp) {
     return getNthIterator(mp, getRandomIndex(mp));
 }
 
@@ -67,7 +67,6 @@ int main() {
 
     kvStoreBaseline kvOriginal(STORE_SIZE);
     kvStore kv(STORE_SIZE);
-    mpss m;
     int get_index, del_index;
 
     for (int i = 0; i < TEST_SIZE; i++) {
@@ -160,18 +159,24 @@ int main() {
                 if (m.size()) {
                     std::cout << "[GET] "
                               << "index: " << get_index;
-                    if (kv.get(get_index, org[0], org[1])) {
-                        auto it = getNthIterator(m, get_index);
 
+                    bool r1 = kvOriginal.get(get_index, org[0], org[1]);
+                    bool r2 = kv.get(get_index, mod[0], mod[1]);
+                    assert(r1 == r2);
+
+                    if (r1) {
                         cout << " key: " << org[0].data
-                             << " val: " << val_slice.data << " ";
+                             << " val: " << org[1].data << " ";
 
-                        if (it->second == val_slice)
+                        if (mod[1] == org[1])
                             std::cout << "succeeded\n";
-                        else
+                        else {
                             std::cout << "mismatch\n";
+                            cout << " key: " << mod[0].data
+                                 << " val: " << mod[1].data << " ";
+                        }
                     } else {
-                        std::cout << "failed\n";
+                        fail;
                     }
                 } else {
                     std::cout << "[GET] store empty\n";
@@ -181,19 +186,20 @@ int main() {
                 // test kvStore->del at index
                 del_index = getRandomIndex(m);
                 std::cout << "[DEL] "
-                          << "index: " << del_index
-                          << " key: " << key_slice.data
-                          << " val: " << val_slice.data << " ";
+                          << "index: " << del_index;
 
                 if (m.size()) {
-                    // kv->get needed for debug logs
-                    if (kv.get(del_index, key_slice, val_slice) &&
-                        kv.del(del_index)) {
+                    bool r1 = kvOriginal.del(del_index);
+                    bool r2 = kv.del(del_index);
+                    assert(r1 == r2);
+
+                    if (r1) {
                         std::cout << "succeeded\n";
-                        m.erase(getNthIterator(m, del_index));
+                    } else {
+                        fail;
                     }
                 } else {
-                    std::cout << "failed\n";
+                    std::cout << "Empty map\n";
                 }
         }
     }
