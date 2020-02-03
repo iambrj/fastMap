@@ -20,7 +20,7 @@ class kvStore {
    private:
     mpss mp;
 
-    string getString(Slice &sc) {
+    string getString(const Slice &sc) {
         return string(sc.data, sc.data + sc.size);
     }
 
@@ -70,7 +70,7 @@ class kvStore {
     }
 
     // returns true if value overwritten
-    bool put(Slice &key, Slice &value) {
+    bool put(const Slice &key, const Slice &value) {
         string v = getString(value);
         string k = getString(key);
         bool ret = mp.find(k) != mp.end();

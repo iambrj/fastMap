@@ -13,16 +13,15 @@ const int STORE_SIZE = 100000;
 const int KEY_SIZE = 32;
 const int VAL_SIZE = 32;
 
-/* https://stackove1rflow.com/a/12468109/12158779 */
+const char charset[] =
+    "0123456789"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz";
+const size_t max_index = (sizeof(charset) - 1);
+
+/* https://stackoverflow.com/a/12468109/12158779 */
 std::string random_string(size_t length) {
-    auto randchar = []() -> char {
-        const char charset[] =
-            "0123456789"
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwxyz";
-        const size_t max_index = (sizeof(charset) - 1);
-        return charset[rand() % max_index];
-    };
+    auto randchar = []() -> char { return charset[rand() % max_index]; };
 
     std::string str(length, 0);
     std::generate_n(str.begin(), length, randchar);
@@ -45,6 +44,8 @@ auto getNthIterator(const map<T, T> &mp, int n) {
 typedef std::map<Slice, Slice> mpss;
 
 int getRandomIndex(const mpss &mp) {
+    if (mp.empty())
+        return -1;
     return rand() % (int)mp.size();
 }
 
@@ -53,6 +54,8 @@ auto getRandomIterator(const mpss &mp) {
 }
 
 int main() {
+    srand(0);
+
     kvStore kv(STORE_SIZE);
     string k, v;
     mpss m;
@@ -67,6 +70,7 @@ int main() {
             case 0:
                 // test kvStore->get
                 std::cout << "[GET] ";
+
                 if (m.size()) {
                     auto it = getRandomIterator(m);
                     key_slice.data = (it->first).data;
@@ -98,11 +102,12 @@ int main() {
                           << " val: " << val_slice.data << " ";
 
                 if (kv.put(key_slice, val_slice)) {
-                    std::cout << "succeeded\n";
-                    m[key_slice] = val_slice;
+                    std::cout << "new write\n";
                 } else {
-                    std::cout << "failed\n";
+                    std::cout << "rewrite\n";
                 }
+
+                m[key_slice] = val_slice;
                 break;
             case 2:
                 // test kvStore->del
@@ -126,12 +131,12 @@ int main() {
             case 3:
                 // test kvStore->get at index
                 get_index = getRandomIndex(m);
-                std::cout << "[GET] "
-                          << "index: " << get_index
-                          << " key: " << key_slice.data
-                          << " val: " << val_slice.data << " ";
 
                 if (m.size()) {
+                    std::cout << "[GET] "
+                              << "index: " << get_index
+                              << " key: " << key_slice.data
+                              << " val: " << val_slice.data << " ";
                     if (kv.get(get_index, key_slice, val_slice)) {
                         auto it = getNthIterator(m, get_index);
 
