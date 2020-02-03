@@ -48,7 +48,7 @@ typedef std::map<Slice, Slice> mpss;
 int getRandomIndex(const mpss &mp) {
     if (mp.empty())
         return -1;
-    return rand() % (int)mp.size();
+    return rand() % ((int)mp.size());
 }
 
 auto getRandomIterator(const mpss &mp) {
@@ -136,11 +136,12 @@ int main() {
 
                 if (m.size()) {
                     std::cout << "[GET] "
-                              << "index: " << get_index
-                              << " key: " << key_slice.data
-                              << " val: " << val_slice.data << " ";
+                              << "index: " << get_index;
                     if (kv.get(get_index, key_slice, val_slice)) {
                         auto it = getNthIterator(m, get_index);
+
+                        cout << " key: " << key_slice.data
+                             << " val: " << val_slice.data << " ";
 
                         if (it->second == val_slice)
                             std::cout << "succeeded\n";
