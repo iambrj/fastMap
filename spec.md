@@ -22,6 +22,7 @@
 - A trie is a data structure that keeps pointers to the its children, and each transition to a child represents one letter being added to the currently processed string. 
 
 - We propose representing each key in a simple trie. The trie nodes will be augmented with two values: number of children leading further from that trie node, as well as, the value for the key at that trie node (if it was set).
+
 - The height of the trie is at max 64, since each key has max length 64.
 
 - How this will work in each case? Let we denote $n$=number of keys in the map so far, $l_k=\text{len}(k)$ and $l_v=\text{len}(k)$. Note that $l_k\le 64$.
@@ -37,9 +38,3 @@
 
 Kuch likho
 
-## Btree?
-
-In B+tree, you store the values in random order in some memory area, and then index the keys in a **b**alanced **tree**. So, at each step, you have two separators and three children, and then you go into one of the children depending on which side of the separators you lie at.
-What's the problem with this? Why can't we use it?
-
-- It is possible to quickly define the comparator required for the ordering of the key in the indexes?
