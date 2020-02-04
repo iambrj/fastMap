@@ -4,12 +4,12 @@
 
 - Our key size is only 64 bytes, where each distinct letter in the key matches `[a-zA-Z]`. Each of these 52 possibilities take 6 bits to represent. Thus, worst case memory usage is 10 million keys times 52 bits per key = $10^7 \times 52= 65 \times 10^6$ bytes, which is approximately $65$ MB for storing the keys.
 
-- Each value can have 256 characters, as one ASCII character takes one byte (0-255 range), and max value size is 256 bytes. Thus, total memory usage is around $10^7\times 256=2.56\times10^9$ bytes $=2.56$ giga bytes, at the very bare minimum. Moreover, each location will need a lot of pointers to be stored, moreover, we will need additional integers to augment the trie nodess. Therefore, we are expected to reach upto 4GB of memory usage.
+- Each value can have 256 characters, as one ASCII character takes one byte (0-255 range), and max value size is 256 bytes. Thus, total memory usage is around $10^7\times 256=2.56\times10^9$ bytes $=2.56$ giga bytes, at the very bare minimum. Moreover, each location will need a lot of pointers to be stored, moreover, we will need additional integers to augment the trie nodes. Therefore, we are expected to reach upto 4GB of memory usage.
 
 
 ## Multithreading ideas
 
-- We intend to keep a mutex to ensure that no more than one transaction occurs simultaneously, i.e., no race conditions.
+- We intend to keep a mutex to ensure that at most one transaction occurs simultaneously, i.e., no race conditions.
 - **Is our application parallelized??**
 
 ## Data augmentation
@@ -20,7 +20,7 @@
 
 - A trie is a data structure that keeps pointers to the its children, and each transition to a child represents one letter being added to the currently processed string.
 
-- We propose representing each key in a simple trie. The trie nodes will be augmented with two values: number of children leading further from that trie node, as well as, the value for the key at that trie node (if it was set).
+- We propose representing each key in a simple trie. The trie nodes will be augmented with two values: number of children leading further from that trie node, as well as, the value for the key ending at that trie node (if it was set).
 
 - The height of the trie is at max 64, since each key has max length 64.
 
@@ -55,4 +55,8 @@ So, instead we can create a organized cache pool of size $52^4 \times 8$ for pre
 
 ## Ngrams
 
-**Purpose**: to speed up get calls, we can notice that a string can be identified uniquely by using one or more of its ngrams. For example, every time we get a query like `abcd`, we can split the query string into `
+**Purpose**: to speed up get calls, we can notice that a string can be identified uniquely by using one or more of its ngrams. For example, every time we get a query like `abcd`, we can split the query string into
+
+## Issues
+* Too many `NULL` value pointers in nodes pointing to their values - switch to compressed trie
+* Implement reader-writer mechanism to support multithreading
