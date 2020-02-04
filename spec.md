@@ -4,9 +4,8 @@
 
 - Our key size is only 64 bytes, where each distinct letter in the key matches `[a-zA-Z]`. Each of these 52 possibilities take 6 bits to represent. Thus, worst case memory usage is 10 million keys times 52 bits per key = $10^7 \times 52= 65 \times 10^6$ bytes, which is approximately $65$ MB for storing the keys.
 
-- Each value can have 256 characters, as one ASCII character takes one byte (0-255 range), and max value size is 256 bytes. Thus, total memory usage is around $10^7\times 256=2.56\times10^9$ bytes $=2.56$ giga bytes. ISN'T THIS HUGE?
+- Each value can have 256 characters, as one ASCII character takes one byte (0-255 range), and max value size is 256 bytes. Thus, total memory usage is around $10^7\times 256=2.56\times10^9$ bytes $=2.56$ giga bytes, at the very bare minimum. Moreover, each location will need a lot of pointers to be stored, moreover, we will need additional integers to augment the trie nodess. Therefore, we are expected to reach upto 4GB of memory usage.
 
-- Finally, since we also plan to augment each trie node with some integers representing number of valid children the trie node has, the memory requirement is expected to shoot up by?
 
 ## Multithreading ideas
 
@@ -15,17 +14,17 @@
 
 ## Data augmentation
 
-- how can we augment our data to better suit our needs?
+- How can we augment our data to better suit our needs?
 
 ## Trie based approach
 
-- A trie is a data structure that keeps pointers to the its children, and each transition to a child represents one letter being added to the currently processed string. 
+- A trie is a data structure that keeps pointers to the its children, and each transition to a child represents one letter being added to the currently processed string.
 
 - We propose representing each key in a simple trie. The trie nodes will be augmented with two values: number of children leading further from that trie node, as well as, the value for the key at that trie node (if it was set).
 
 - The height of the trie is at max 64, since each key has max length 64.
 
-- How this will work in each case? Let we denote $n$=number of keys in the map so far, $l_k=\text{len}(k)$ and $l_v=\text{len}(k)$. Note that $l_k\le 64$.
+- How this will work in each case? When searching for a key, we will traverse the key recursively or using a stack. Let us denote $n$=number of keys in the map so far, $l_k=\text{len}(k)$ and $l_v=\text{len}(v)$. Note that $l_k\le 64$.
   - `get(Key)` - this will, within at most $l_k$ iterations, return the value, or claim that none exists.
   - `put(Key, value)` - within at most $l_k$ iterations, this will reach the memory address for the key and put the value there.
   - `delete(Key)` -  within at most $l_k$ iterations, this will reach the memory address for the key and set its value to `nullptr`.
@@ -34,7 +33,26 @@
 
 - Each of these methods may also have significant overhead due to having to convert to and from a `Slice` object. **FIGURE THIS OUT?**
 
+- Struct:
+
+    ```c++
+    struct {
+        node** children; // array of 52 elements, containing a pointer to the next child
+        node* valuePtr = nullptr;
+    } node;
+    ```
+
 ## Memory pooling?
 
 Kuch likho
 
+## Implement cache
+
+**Purpose**: cache the most frequently accessed prefixes of keys, and store direct pointers to them in a cache pool. The prefixes can be of length upto 5 or 6, and this will probably save us 5 to 6 iterations of having to traverse the trie.
+
+**Implementation:** If we store only popular prefixes in the cache, then there is an issue of how do you check if a given string exists in the cache?
+So, instead we can create a organized cache pool of size $52^4 \times 8$ for prefixes of size 4. Then, it's only a mattter of some simple bit shifts and in one line of C code we can get to the concerned pointer.
+
+## Ngrams
+
+**Purpose**: to speed up get calls, we can notice that a string can be identified uniquely by using one or more of its ngrams. For example, every time we get a query like `abcd`, we can split the query string into `
