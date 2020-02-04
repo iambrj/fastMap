@@ -11,10 +11,6 @@
 - We intend to keep a mutex to ensure protection against data corruption, i.e., no race conditions.
 - We plan on implementing a **reader-writer like mechanism** - multiple threads may be performing `get` operations on a store but only one thread may be performing a `put/delete` operation at any given instant. If there are multiple `get`s, and a `put` is requested, the `put` (and any other subsequently arriving operations) is added to a queue until the gets complete.
 
-## Data augmentation
-
-- How can we augment our data to better suit our needs?
-
 ## Trie based approach
 
 - A trie is a data structure that keeps pointers to the its children, and each transition to a child represents one letter being added to the currently processed string.
