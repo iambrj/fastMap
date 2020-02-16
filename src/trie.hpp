@@ -5,7 +5,6 @@ using namespace std;
 
 const int RANGE = 52;
 
-template <typename T>
 class TrieNode {
     /*
      * Each trie node attempts to store the values of the transition edges
@@ -20,9 +19,9 @@ class TrieNode {
 
    private:
     int getIndex(char c) {
-        if ('A' <= c)
-            return (c - 'A') + (RANGE / 2);
-        return c - 'a';
+        if ('a' <= c)
+            return (c - 'a');
+        return (c - 'A') + (RANGE / 2);
     }
 
     TrieNode **getNewTransitionsArray() {
@@ -48,7 +47,7 @@ class TrieNode {
         len -= splittedOutLen;
 
         //  pointer remapping
-        int newTransitionIndex = getIndex(data[index]);
+        int newTransitionIndex = getIndex(*(splittedOut->data));
         TrieNode **previousTransitions = this->p;
         this->p = getNewTransitionsArray();
         this->p[newTransitionIndex] = splittedOut;
@@ -64,19 +63,43 @@ class TrieNode {
 
    public:
     TrieNode() {
+        p = getNewTransitionsArray();
         data = nullptr;
         value = nullptr;
         len = 0;
     }
-    TrieNode(char *str, int sLen, char *valueLen) {
+    TrieNode(char *str, int sLen, char *valueAssign) {
         this->len = sLen;
         p = getNewTransitionsArray();
         data = str;
-        this->value = valueLen;
+        this->value = valueAssign;
+    }
+
+    // finds the key in the trie, sets value and len accordingly
+    void lookup(char *key, int keyLen, char *&value, int &valueLen) {
+        TrieNode *curr = this;
+        int currIndex = 0;
+        char *dataStr = curr->data;
+
+        for (int i = 0; i < keyLen; i++) {
+            while (i < keyLen && currIndex < curr->len && *dataStr == *key) {
+                key++;
+                currIndex++;
+                i++;
+            }
+
+            if (i == keyLen) {
+                // stopped middway in a key's data
+                if (currIndex < curr->len) {
+                    valueLen = 0;
+                    return;
+                }
+            }
+        }
     }
 
     // return whether value was overwritten or not
-    bool insert(char *s, int sLen, char *valueLen) {
+    bool insert(char *s, int sLen, char *valueAssign) {
         int i = 0;
         char *pointer = this->data;
 
@@ -87,23 +110,28 @@ class TrieNode {
             sLen--;
         }
 
-        if (i == sLen) {
+        // The existing transition completely encloses my transition
+        // so I need to split this node
+        if (sLen == 0) {
             // both ending at same point, overwrite!
             if (i == len) {
-                this->value = valueLen;
+                this->value = valueAssign;
                 return true;
             }
 
-            // The existing transition completely encloses my transition
-            // so i need to split this node
             this->split(i);
             int idx = getIndex(*s);
-            this->p[idx] = new TrieNode(s, sLen, valueLen);
+            this->p[idx] = new TrieNode(s, sLen, valueAssign);
             return false;
-        }
+        } else if (i != 0)
+            this->split(i);
 
         int idx = getIndex(*s);
-        return this->p[idx]->insert(s, sLen, valueLen);
+        if (!this->p[idx]) {
+            this->p[idx] = new TrieNode(s, sLen, valueAssign);
+            return false;
+        }
+        return this->p[idx]->insert(s, sLen, valueAssign);
     }
 
     /**
