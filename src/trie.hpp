@@ -11,11 +11,10 @@ class TrieNode {
      * such that node b is at the index c[0]
      */
 
-    int idx;         // index of the first character of this string
-    int len;         // length of the string data contained in this node
-    char *value;     // value associated with the key ending at this trie node
-    bool numofEnds;  // if a string was ending at this node
-    TrieNode **p;    // array of TrieNode pointers
+    int len;  // length of the string data contained in this node
+    char *data;
+    char *value;   // value associated with the key ending at this trie node
+    TrieNode **p;  // array of TrieNode pointers
 
    private:
     int getIndex(char c) {
@@ -24,15 +23,39 @@ class TrieNode {
         return c - 'a';
     }
 
-    void split() {
+    TrieNode **getNewTransitionsArray() {
+        return (TrieNode **)calloc(sizeof(TrieNode *) * RANGE, 1);
+    }
+
+    // need not be a leaf node
+    // index will be a part of the newly created trie node
+    void split(int index) {
+        assert(index < this->len && index >= 0);
+
+        int splittedOutLen = len - index;
+
+        TrieNode *splittedOut =
+            new TrieNode(s + index, splittedOutLen, this->value);
+
+        len -= splittedOutLen;
+        // transfer value to the splitted out node
+        splittedOut->value = value;
+        value = nullptr;
+
+        //  pointer remapping
+        int newTransitionIndex = getIndex(s[index]);
+        TrieNode **previousTransitions = this->p;
+        this->p = getNewTransitionsArray();
+        this->p[newTransitionIndex] = splittedOut;
+        splittedOut->p = previousTransitions;
     }
 
    public:
-    TrieNode(char *str, int len) {
-        idx = getIndex(*str);
+    TrieNode(char *str, int len, char *value) {
         this->len = len;
-        p = (TrieNode **)calloc(sizeof(TrieNode *) * RANGE, 1);
-        numofEnds = false;  // ?
+        p = getNewTransitionsArray();
+        data = str;
+        this->value = value;
     }
 
     // return whether value was overwritten or not
@@ -40,15 +63,27 @@ class TrieNode {
         int idx = getIndex(*s);
 
         if (this->p[idx]) {
-            // if the transition already exists
-            if (this->p[idx]->len == 1)
-                // if the transition stores only the first character
-                this->p[idx].insert(s + 1, len - 1);
-            else
-                ;
+            int i = 0;
+            int len2 = this->p[idx]->len;
+            char *pointer = this->p[idx]->data;
+
+            while (i < len && i < len2 && *pointer == *s) {
+                s++;
+                i++;
+                pointer++;
+                len--;
+            }
+
+            if (i == len) {
+                // the existing transition completely encloses my transition
+                // so i need to split this node
+                this->p[idx]->split();
+            }
+
+            return this->p[idx]->insert(s, len, value);
         } else {
             // if the transition doesn't exist
-            this->p = new TrieNode(s, len);
+            this->p = new TrieNode(s, len, value);
         }
     }
 
