@@ -23,5 +23,14 @@ int main() {
         } else {
             printf("%s\n", value);
         }
+
+        root->erase(key);
+        root->lookup(key, strlen(key), value);
+
+        if (value == nullptr) {
+            printf("Not found!\n");
+        } else {
+            printf("%s\n", value);
+        }
     }
 }

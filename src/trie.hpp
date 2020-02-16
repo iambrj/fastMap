@@ -77,7 +77,9 @@ class TrieNode {
     }
 
     // finds the key in the trie, sets value and len accordingly
-    void lookup(char *key, int keyLen, char *&value) {
+    // returns the trienode pointer in which the key was found, or nullptr
+    // otherwise
+    TrieNode *lookup(char *key, int keyLen, char *&value) {
         TrieNode *curr = this;
         int currIndex = 0;
         char *dataStr = curr->data;
@@ -93,17 +95,17 @@ class TrieNode {
             if (i == keyLen) {
                 // stopped middway in a key's data
                 if (currIndex < curr->len) {
-                    return;
+                    return nullptr;
                 }
 
                 value = curr->value;
-                return;
+                return curr;
             }
 
             char transition = getIndex(*key);
 
             if (!curr->p or !curr->p[transition]) {
-                return;
+                return nullptr;
             }
 
             curr = curr->p[transition];
@@ -131,8 +133,9 @@ class TrieNode {
         if (sLen == 0) {
             // both ending at same point, overwrite!
             if (i == len) {
+                bool overwrote = this->value != nullptr;
                 this->value = valueAssign;
-                return true;
+                return overwrote;
             }
 
             this->split(i);
@@ -150,10 +153,14 @@ class TrieNode {
         return this->p[idx]->insert(s + 1, sLen - 1, valueAssign);
     }
 
-    /**
-     * Precondition: s exists in Trie before erasure
-     */
+    // technically it is supposed to backtrack and merge nodes
+    // but premature optimization is unnecessary
     void erase(char *s) {
-        // need to rewrite
+        char *val;
+        TrieNode *node = lookup(s, strlen(s), val);
+
+        // Precondition: s exists in Trie before erasure
+        assert(node && node->value != nullptr);
+        node->value = nullptr;
     }
 };
