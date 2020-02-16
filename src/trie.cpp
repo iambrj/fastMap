@@ -15,14 +15,13 @@ int main() {
     }
 
     for (auto key : strs) {
-        char *value;
-        int len;
-        root->lookup(key, value, len);
+        char *value = nullptr;
+        root->lookup(key, strlen(key), value);
 
-        if (len == 0) {
+        if (value == nullptr) {
             printf("Not found!\n");
         } else {
-            printf("%.*s", len, value);
+            printf("%s\n", value);
         }
     }
 }

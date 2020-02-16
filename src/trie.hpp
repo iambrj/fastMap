@@ -33,21 +33,22 @@ class TrieNode {
     void split(int index) {
         assert(index < this->len && index >= 0);
 
-        int splittedOutLen = len - index;
+        // -1 since one character gets used in the edge transition
+        int splittedOutLen = len - index - 1;
+        char transition = *(data + index);
 
         TrieNode *splittedOut = new TrieNode();
-
-        splittedOut->data = data + index;
+        splittedOut->data = data + index + 1;
         splittedOut->len = splittedOutLen;
         // transfer value to the splitted out node
         splittedOut->value = value;
         value = nullptr;
 
         // this node's remaining length
-        len -= splittedOutLen;
+        len -= (splittedOutLen + 1);  // +1 for the transition letter
 
         //  pointer remapping
-        int newTransitionIndex = getIndex(*(splittedOut->data));
+        int newTransitionIndex = getIndex(transition);
         TrieNode **previousTransitions = this->p;
         this->p = getNewTransitionsArray();
         this->p[newTransitionIndex] = splittedOut;
@@ -76,13 +77,14 @@ class TrieNode {
     }
 
     // finds the key in the trie, sets value and len accordingly
-    void lookup(char *key, int keyLen, char *&value, int &valueLen) {
+    void lookup(char *key, int keyLen, char *&value) {
         TrieNode *curr = this;
         int currIndex = 0;
         char *dataStr = curr->data;
 
-        for (int i = 0; i < keyLen; i++) {
+        for (int i = 0; i < keyLen;) {
             while (i < keyLen && currIndex < curr->len && *dataStr == *key) {
+                dataStr++;
                 key++;
                 currIndex++;
                 i++;
@@ -91,10 +93,24 @@ class TrieNode {
             if (i == keyLen) {
                 // stopped middway in a key's data
                 if (currIndex < curr->len) {
-                    valueLen = 0;
                     return;
                 }
+
+                value = curr->value;
+                return;
             }
+
+            char transition = getIndex(*key);
+
+            if (!curr->p or !curr->p[transition]) {
+                return;
+            }
+
+            curr = curr->p[transition];
+            currIndex = 0;
+            dataStr = curr->data;
+            key++;
+            i++;
         }
     }
 
@@ -121,17 +137,17 @@ class TrieNode {
 
             this->split(i);
             int idx = getIndex(*s);
-            this->p[idx] = new TrieNode(s, sLen, valueAssign);
+            this->p[idx] = new TrieNode(s + 1, sLen - 1, valueAssign);
             return false;
         } else if (i != 0)
             this->split(i);
 
         int idx = getIndex(*s);
         if (!this->p[idx]) {
-            this->p[idx] = new TrieNode(s, sLen, valueAssign);
+            this->p[idx] = new TrieNode(s + 1, sLen - 1, valueAssign);
             return false;
         }
-        return this->p[idx]->insert(s, sLen, valueAssign);
+        return this->p[idx]->insert(s + 1, sLen - 1, valueAssign);
     }
 
     /**
