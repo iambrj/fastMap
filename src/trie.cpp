@@ -61,9 +61,11 @@ void setStringIntoSlice(string &s, Slice &slc) {
 
 #define fail(x)                                                        \
     {                                                                  \
-        printf("%d - Mismatch at operation %d optype %d\n", x, i, op); \
-        return;                                                        \
     }
+//        printf("%d - Mismatch at operation %d optype %d\n", x, i, op); \
+  //  }
+//        return;
+
 
 void fileCheck() {
     map<string, string> naive;
