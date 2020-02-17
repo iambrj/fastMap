@@ -1,4 +1,5 @@
 .vscode/*
 *.out
 *.txt
+*.pdf
 ./bin
