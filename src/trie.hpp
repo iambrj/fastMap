@@ -79,6 +79,10 @@ class TrieNode {
         this->value = valueAssign;
     }
 
+    ~TrieNode() {
+        free(this->p);
+    }
+
     // finds the key in the trie, sets value and len accordingly
     // returns the trienode pointer in which the key was found, or nullptr
     // otherwise
@@ -117,6 +121,8 @@ class TrieNode {
             key++;
             i++;
         }
+
+        return nullptr;
     }
 
     // return whether value was overwritten or not

@@ -8,15 +8,18 @@ struct Slice {
 
 class kvStore {
    private:
-    TrieNode root;
+    TrieNode *root;
 
    public:
     kvStore(uint64_t max_entries) {
-        root = TrieNode();
+        root = new TrieNode();
+    }
+    ~kvStore() {
+        delete root;
     }
     // returns false if key didn’t exist
     bool get(Slice &key, Slice &value) {
-        TrieNode *found = root.lookup(key.data, key.size, value.data);
+        TrieNode *found = root->lookup(key.data, key.size, value.data);
         if (!found)
             return false;
         value.size = strlen(value.data);
@@ -24,14 +27,14 @@ class kvStore {
     }
     // returns true if value overwritten
     bool put(Slice &key, Slice &value) {
-        return root.insert(key.data, value.size, value.data);
+        return root->insert(key.data, value.size, value.data);
     }
     bool del(Slice &key) {
         Slice value;
-        TrieNode *found = root.lookup(key.data, key.size, value.data);
+        TrieNode *found = root->lookup(key.data, key.size, value.data);
         if (!found)
             return false;
-        root.erase(key.data);
+        root->erase(key.data);
         return true;
     }
     // returns Nth key-value pair

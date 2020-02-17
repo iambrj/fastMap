@@ -1,4 +1,4 @@
-#define SEED 10 // no elements to be inserted at beginning
+#define SEED 10  // no elements to be inserted at beginning
 #define MAX_STR_LEN 64
 
 #define OP_TYPES 3
@@ -32,49 +32,49 @@ string alpha_rand(const int len) {
     return s;
 }
 
-string get_newstring()
-{
+string get_newstring() {
     return alpha_rand(rand() % MAX_STR_LEN + 1);
 }
 
-string rand_string_wrapper()
-{
+string rand_string_wrapper() {
     string result = alpha_rand(rand() % MAX_STR_LEN + 1);
 #ifdef PREFIX_OVERLAP
-    if(inserted.empty())
+    if (inserted.empty())
         return result;
     int rand_idx = rand() % inserted.size();
-    string prefix = inserted[rand_idx].substr(0, rand() % (rand() % inserted[rand_idx].length() + 1));
+    string prefix = inserted[rand_idx].substr(
+        0, rand() % (rand() % inserted[rand_idx].length() + 1));
     result = prefix + result;
 #endif
     return result;
 }
 
-int main()
-{
+int main() {
     srand(time(NULL));
-    for(int i = 0; i < SEED; i++)
-    {
+
+    int totalOps = SEED + OP_COUNT;
+    printf("%d\n", totalOps);
+
+    for (int i = 0; i < SEED; i++) {
         printf("%d ", INSERT_OP);
         string newstring = get_newstring();
         inserted.push_back(newstring);
         printf("%s %s\n", newstring.c_str(), get_newstring().c_str());
     }
     int rand_idx, op;
-    for(int i = 0; i < OP_COUNT; i++)
-    {
+    for (int i = 0; i < OP_COUNT; i++) {
         op = rand() % OP_TYPES;
         string newstring = get_newstring();
-        if(!inserted.size())
+        if (!inserted.size())
             op = INSERT_OP;
         else
             rand_idx = rand() % inserted.size();
         printf("%d ", op);
-        switch(op)
-        {
+        switch (op) {
             case INSERT_OP:
                 inserted.push_back(newstring);
-                printf("%s %s\n", rand_string_wrapper().c_str(), get_newstring().c_str());
+                printf("%s %s\n", rand_string_wrapper().c_str(),
+                       get_newstring().c_str());
                 break;
             case LOOKUP_OP:
                 printf("%s\n", inserted[rand_idx].c_str());

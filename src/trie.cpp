@@ -1,6 +1,7 @@
 #include <fstream>
 #include <map>
 
+#include <iostream>
 #include <string>
 #include <string.h>
 #include <vector>
@@ -62,12 +63,14 @@ void setStringIntoSlice(string &s, Slice &slc) {
     }
 void fileCheck() {
     map<string, string> naive;
-    const char *FILE_PATH = "genInp.txt";
+    const char *FILE_PATH = "../tests/genInp.txt";
 
     ifstream file(FILE_PATH);
 
     int opCount;
     file >> opCount;
+    // std::cout << opCount << endl;
+    // return;
 
     kvStore fastMap((uint64_t)opCount);
 
@@ -148,8 +151,12 @@ void fileCheck() {
             default:
                 break;
         }
+
+        printf("Completed op number %d\n", i);
     }
 }
 
 int main() {
+    fileCheck();
+    return 0;
 }
