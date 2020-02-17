@@ -32,6 +32,11 @@ string alpha_rand(const int len) {
     return s;
 }
 
+string get_newstring()
+{
+    return alpha_rand(rand() % MAX_STR_LEN + 1);
+}
+
 string rand_string_wrapper()
 {
     string result = alpha_rand(rand() % MAX_STR_LEN + 1);
@@ -45,11 +50,6 @@ string rand_string_wrapper()
     return result;
 }
 
-string get_newstring()
-{
-    return alpha_rand(rand() % MAX_STR_LEN + 1);
-}
-
 int main()
 {
     srand(time(NULL));
@@ -58,7 +58,7 @@ int main()
         printf("%d ", INSERT_OP);
         string newstring = get_newstring();
         inserted.push_back(newstring);
-        printf("%s\n", newstring.c_str());
+        printf("%s %s\n", newstring.c_str(), get_newstring().c_str());
     }
     int rand_idx, op;
     for(int i = 0; i < OP_COUNT; i++)
@@ -74,7 +74,7 @@ int main()
         {
             case INSERT_OP:
                 inserted.push_back(newstring);
-                printf("%s\n", rand_string_wrapper().c_str());
+                printf("%s %s\n", rand_string_wrapper().c_str(), get_newstring().c_str());
                 break;
             case LOOKUP_OP:
                 printf("%s\n", inserted[rand_idx].c_str());
