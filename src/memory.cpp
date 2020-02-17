@@ -12,7 +12,7 @@ const long long MX_CHECK = 100;
    the same value as intended
    The intended value and indices are stored in a vec, vecVal arrays.
 */
-int main() {
+void test_mem() {
     srand(0);
     long long vec[MX_CHECK];
     long long vecVal[MX_CHECK];
@@ -32,6 +32,4 @@ int main() {
     }
 
     std::cout << "success allocation" << std::endl;
-
-    return 0;
 }

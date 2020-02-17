@@ -1,3 +1,6 @@
+#ifndef TRIE_HPP
+#define TRIE_HPP
+
 #include <vector>
 #include <assert.h>
 #include <stdlib.h>
@@ -154,7 +157,7 @@ class TrieNode {
     }
 
     // technically it is supposed to backtrack and merge nodes
-    // but premature optimization is unnecessary
+    // but premature optimization is the root of all evil - Donald Knuth
     void erase(char *s) {
         char *val;
         TrieNode *node = lookup(s, strlen(s), val);
@@ -164,3 +167,4 @@ class TrieNode {
         node->value = nullptr;
     }
 };
+#endif
