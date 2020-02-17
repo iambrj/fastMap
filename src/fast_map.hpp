@@ -22,13 +22,15 @@ class kvStore {
         TrieNode *found = root->lookup(key.data, key.size, value.data);
         if (!found)
             return false;
+        printf("%s\n", value.data);
         value.size = strlen(value.data);
         return true;
     }
     // returns true if value overwritten
     bool put(Slice &key, Slice &value) {
-        return root->insert(key.data, value.size, value.data);
+        return root->insert(key.data, key.size, value.data);
     }
+
     bool del(Slice &key) {
         Slice value;
         TrieNode *found = root->lookup(key.data, key.size, value.data);

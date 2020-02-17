@@ -43,12 +43,13 @@ void naiveCheck() {
 }
 
 char *getCharPointer(string &s) {
-    char *valueChar = (char *)malloc(s.size());
+    char *valueChar = (char *)malloc(s.size()), *org = valueChar;
     for (int i = 0; i < s.size(); i++) {
-        *(valueChar + i) = s[i];
+        *valueChar = s[i];
+        valueChar++;
     }
 
-    return valueChar;
+    return org;
 }
 
 void setStringIntoSlice(string &s, Slice &slc) {
