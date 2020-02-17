@@ -1,2 +1,2 @@
-[ ] Ran `clang-format`
-[ ] `make` builds the project successfully
+- [ ] Ran `clang-format`
+- [ ] `make` builds the project successfully
