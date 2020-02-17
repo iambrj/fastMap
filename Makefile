@@ -14,6 +14,8 @@ endif
 
 CC=g++
 
+BINDIR=./bin
+
 DEPS=./src/*.hpp ./src/*.cpp
 
 TEST_GEN=./tests/generater.cpp
@@ -22,8 +24,10 @@ fastmap: $(DEPS)
 	$(CC) $(CFLAGS) $(DEPS) -o ./bin/fastmap.out
 
 tests: $(TEST_GEN)
+	mkdir -p $(BINDIR)
 	$(CC) $(CFLAGS) $(TEST_GEN) -o ./bin/generator.out
 	./bin/generator.out > ./tests/tests.txt
 
 clean:
 	rm ./bin/*
+	rmdir ./bin
