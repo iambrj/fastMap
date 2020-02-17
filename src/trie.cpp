@@ -56,10 +56,10 @@ void setStringIntoSlice(string &s, Slice &slc) {
     slc.size = s.size();
 }
 
-#define fail                                     \
-    {                                            \
-        printf("Mismatch at operation %d: ", i); \
-        return;                                  \
+#define fail                                                   \
+    {                                                          \
+        printf("Mismatch at operation %d optype %d\n", i, op); \
+        return;                                                \
     }
 void fileCheck() {
     map<string, string> naive;
@@ -93,11 +93,14 @@ void fileCheck() {
                 wasFound = fastMap.get(x, y);
 
                 if (wasFound != actuallyFound) {
+                    cout << wasFound << " " << actuallyFound << endl;
                     fail;
                 }
 
                 if (wasFound) {
                     if (!strcmp(actual.c_str(), y.data)) {
+                        cout << actual << endl;
+                        printf("%s\n", y.data);
                         fail;
                     }
                 }
@@ -114,18 +117,22 @@ void fileCheck() {
 
                 found = fastMap.get(x, y);
 
-                if (found != isOverwrite)
+                if (found != isOverwrite) {
+                    cout << found << " " << isOverwrite << endl;
                     fail;
+                }
 
                 fastMap.put(x, y);
-
                 found = fastMap.get(x, z);
 
                 if (!found) {
+                    cout << "not found\n";
                     fail;
                 }
 
                 if (!strcmp(value.c_str(), z.data)) {
+                    cout << value << endl;
+                    printf("%s\n", z.data);
                     fail;
                 }
 
@@ -138,13 +145,18 @@ void fileCheck() {
                 // check if erased correctly from fastmap
                 found = fastMap.del(x);
 
-                if (!found)
+                if (!found) {
+                    cout << "not found\n";
+
                     fail;
+                }
 
                 found = fastMap.get(x, y);
 
-                if (found)
+                if (found) {
+                    cout << "not found\n";
                     fail;
+                }
 
                 break;
 
