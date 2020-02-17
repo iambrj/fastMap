@@ -5,7 +5,7 @@
 #define LOOKUP_OP 0
 #define INSERT_OP 1
 #define ERASE_OP 2
-#define OP_COUNT 1000
+#define OP_COUNT 1000000
 
 #include <vector>
 #include <string>
@@ -13,13 +13,14 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+
 using namespace std;
 
 vector<string> inserted;
 
 static const char alpha[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz";
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
 
 static int alpha_len = strlen(alpha);
 
@@ -61,6 +62,7 @@ int main() {
         inserted.push_back(newstring);
         printf("%s %s\n", newstring.c_str(), get_newstring().c_str());
     }
+
     int rand_idx, op;
     for (int i = 0; i < OP_COUNT; i++) {
         op = rand() % OP_TYPES;

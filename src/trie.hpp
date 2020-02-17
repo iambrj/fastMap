@@ -4,6 +4,7 @@
 #include <vector>
 #include <assert.h>
 #include <stdlib.h>
+
 using namespace std;
 
 const int RANGE = 52;
@@ -20,7 +21,7 @@ class TrieNode {
     char *value;   // value associated with the key ending at this trie node
     TrieNode **p;  // array of TrieNode pointers
 
-   private:
+private:
     int getIndex(char c) {
         if ('a' <= c)
             return (c - 'a');
@@ -28,7 +29,7 @@ class TrieNode {
     }
 
     TrieNode **getNewTransitionsArray() {
-        return (TrieNode **)calloc(sizeof(TrieNode *) * RANGE, 1);
+        return (TrieNode **) calloc(sizeof(TrieNode *) * RANGE, 1);
     }
 
     // need not be a leaf node
@@ -65,13 +66,14 @@ class TrieNode {
     void merge() {
     }
 
-   public:
+public:
     TrieNode() {
         p = getNewTransitionsArray();
         data = nullptr;
         value = nullptr;
         len = 0;
     }
+
     TrieNode(char *str, int sLen, char *valueAssign) {
         this->len = sLen;
         p = getNewTransitionsArray();
@@ -109,9 +111,9 @@ class TrieNode {
                 return curr;
             }
 
-            char transition = getIndex(*key);
+            int transition = getIndex(*key);
 
-            if (!curr->p or !curr->p[transition]) {
+            if (!curr->p[transition]) {
                 return nullptr;
             }
 
@@ -122,7 +124,11 @@ class TrieNode {
             i++;
         }
 
-        return nullptr;
+        if (curr->len == 0)
+            value = curr->value;
+        else
+            return nullptr;
+        return curr;
     }
 
     // return whether value was overwritten or not
@@ -148,10 +154,9 @@ class TrieNode {
             }
 
             this->split(i);
-            int idx = getIndex(*s);
-            this->p[idx] = new TrieNode(s + 1, sLen - 1, valueAssign);
+            this->value = valueAssign;
             return false;
-        } else if (i != 0)
+        } else if (i != 0 && i < this->len)
             this->split(i);
 
         int idx = getIndex(*s);
@@ -159,6 +164,7 @@ class TrieNode {
             this->p[idx] = new TrieNode(s + 1, sLen - 1, valueAssign);
             return false;
         }
+
         return this->p[idx]->insert(s + 1, sLen - 1, valueAssign);
     }
 
@@ -173,4 +179,5 @@ class TrieNode {
         node->value = nullptr;
     }
 };
+
 #endif
