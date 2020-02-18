@@ -299,37 +299,63 @@ public:
   
   Node *getRoot() { return root; } 
   
-  Node *search(Slice n) { 
+  Node *search(Slice &key) { 
     Node *temp = root; 
     while (temp != NULL) { 
-      if (n < temp->key) { 
+      if (key < temp->key) { 
         if (temp->left == NULL) 
           break; 
         else
           temp = temp->left; 
-      } else if (n == temp->key) { 
+      } else if (key == temp->key) { 
         break; 
-      } else { 
+      } else {
         if (temp->right == NULL) 
           break; 
         else
           temp = temp->right; 
       } 
     } 
-  
-    return temp; 
+    return temp;
   } 
   
-  void insert(const Slice &A, const Slice &B) { 
+  // search for the required benchmark interface
+  bool get(Slice &key, Slice &value){
+    Node *temp = root; 
+    while (temp != NULL) { 
+      if (key < temp->key) { 
+        if (temp->left == NULL) 
+          break; 
+        else
+          temp = temp->left; 
+      } else if (key == temp->key) { 
+        break; 
+      } else {
+        if (temp->right == NULL) 
+          break; 
+        else
+          temp = temp->right; 
+      } 
+    } 
+    if(key == temp->key){
+      value = temp->data;
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+
+  bool put(Slice &A, Slice &B) { 
     Node *newNode = new Node(A, B); 
     if (root == NULL) { 
       newNode->color = BLACK; 
       root = newNode; 
     } else { 
-      Node *temp = search(A); 
+      Node *temp = search(A);
   
       if (temp->key == A) { 
-        return; 
+        return false; 
       } 
   
       newNode->parent = temp; 
@@ -341,22 +367,23 @@ public:
   
       fixRedRed(newNode); 
     } 
+    return true;
   } 
   
-  void deleteBykey(Slice n) { 
+  bool del(Slice key) { 
     if (root == NULL) 
-      return; 
+      return false; 
   
-    Node *v = search(n); 
+    Node *v = search(key); 
   
-    if (v->key == n);
+    if (v->key == key);
     else{
-      cout << "No node found to delete with keyue: " << n.data << endl; 
-      return; 
+      return false; 
     } 
   
     deleteNode(v); 
-  } 
+    return true;
+  }
 
   void printInOrder() { 
     cout << "Inorder: " << endl; 
@@ -386,11 +413,11 @@ int main() {
     {4, "k"},
   };
 
-  tree.insert(arr[0], arr[1]); 
-  tree.insert(arr[1], arr[2]); 
-  tree.insert(arr[2], arr[3]); 
-  tree.insert(arr[10], arr[0]); 
-  tree.insert(arr[7], arr[8]); 
+  tree.put(arr[0], arr[1]); 
+  tree.put(arr[1], arr[2]); 
+  tree.put(arr[2], arr[3]); 
+  tree.put(arr[10], arr[0]); 
+  tree.put(arr[7], arr[8]); 
   cout << tree.search(arr[1])->data.data << endl;
   cout << "hello" << endl;
   /* tree.insert(8); */ 
@@ -401,6 +428,8 @@ int main() {
   /* tree.insert(13); */ 
   
   tree.printInOrder(); 
+
+  tree.del(arr[10]);
   
   cout<<endl<<"Deleting 18, 11, 3, 10, 22"<<endl; 
   
