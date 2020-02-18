@@ -2,11 +2,14 @@
 #define MAX_KEY_LEN 64
 #define MAX_VALUE_LEN 256
 
-#define OP_TYPES 2
+#define OP_TYPES 5
 #define LOOKUP_OP 0
 #define INSERT_OP 1
 #define ERASE_OP 2
-#define OP_COUNT 10
+#define LOOKUPN_OP 3
+#define ERASEN_OP 4
+#define OP_COUNT 10000000
+//#define MAX_OUT
 
 #include <vector>
 #include <string>
@@ -20,8 +23,8 @@ using namespace std;
 vector<string> inserted;
 
 static const char alpha[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz";
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
 
 static int alpha_len = strlen(alpha);
 
@@ -92,6 +95,13 @@ int main() {
                 break;
             case ERASE_OP:
                 printf("%s\n", inserted[rand_idx].c_str());
+                inserted.erase(inserted.begin() + rand_idx);
+                break;
+            case LOOKUPN_OP:
+                printf("%d\n", rand_idx + 1);
+                break;
+            case ERASEN_OP:
+                printf("%d\n", rand_idx + 1);
                 inserted.erase(inserted.begin() + rand_idx);
                 break;
         }

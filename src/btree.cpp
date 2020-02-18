@@ -1,12 +1,13 @@
 #include <iostream>
 #include <string.h>
+
 #define MIN(x, y) (y ^ ((x ^ y) & -(x < y)))
 
 using namespace std;
 
 struct Slice {
     uint8_t size;
-    char* data;
+    char *data;
 };
 
 struct Point {
@@ -14,14 +15,14 @@ struct Point {
     Slice val;
 };
 
-void printSlice(const Slice& s) {
+void printSlice(const Slice &s) {
     for (int i = 0; i < s.size; i++) {
         cout << s.data[i];
     }
     cout << '\n';
 }
 
-void printPoint(const Point& p) {
+void printPoint(const Point &p) {
     for (int i = 0; i < p.key.size; i++) {
         cout << p.key.data[i];
     }
@@ -32,9 +33,8 @@ void printPoint(const Point& p) {
     cout << "\n--------\n";
 }
 
-int strComp(Slice& a, Slice& b) {
+int strComp(Slice &a, Slice &b) {
     int minn = MIN(a.size, b.size);
-    printf("%.*s %.*s\n", a.size, a.data, b.size, b.data);
 
     int res = strncmp(a.data, b.data, minn);
 
@@ -47,37 +47,41 @@ int strComp(Slice& a, Slice& b) {
 
 // A BTree node
 class BTreeNode {
-    Point* points;  // An array of data points
+    Point *points;  // An array of data points
     int t;          // Minimum degree (defines the range for number of keys)
-    BTreeNode** C;  // An array of child pointers
+    BTreeNode **C;  // An array of child pointers
     int n;          // Current number of data points
     bool leaf;      // Is true when node is leaf. Otherwise false
+    int *endingAtIthChild;
 
-   public:
+public:
     BTreeNode(int _t, bool _leaf);  // Constructor
 
     // A function to traverse all nodes in a subtree rooted with this node
     void traverse();
 
     // A function to search a key in the subtree rooted with this node.
-    Point* search(Slice& k);  // returns NULL if k is not present.
+    Point *search(Slice &k);  // returns NULL if k is not present.
+
+    // A function to search for N-th key value pair
+    Point *search(int N);  // returns NULL if N > tree size
 
     // A utility function to insert a new point in the subtree rooted with
     // this node. The assumption is, the node must be non-full when this
     // function is called
-    void insertNonFull(Point& p);
+    void insertNonFull(Point &p);
 
     // A utility function to split the child y of this node. i is index of y in
     // child array C[].  The Child y must be full when this function is called
-    void splitChild(int i, BTreeNode* y);
+    void splitChild(int i, BTreeNode *y);
 
     // A function that returns the index of the first key that is greater
     // or equal to k
-    int findKey(Slice& k);
+    int findKey(Slice &k);
 
     // A wrapper function to remove the key k in subtree rooted with
     // this node.
-    bool remove(Slice& k);
+    bool remove(Slice &k);
 
     // A function to remove the point present in idx-th position in
     // this node which is a leaf
@@ -118,9 +122,9 @@ class BTreeNode {
 
 // A BTree
 class BTree {
-    BTreeNode* root;  // Pointer to root node
+    BTreeNode *root;  // Pointer to root node
     int t;            // Minimum degree
-   public:
+public:
     // Constructor (Initializes tree as empty)
     BTree(int _t) {
         root = NULL;
@@ -134,15 +138,20 @@ class BTree {
     }
 
     // function to search a key in this tree
-    Point* search(Slice& k) {
+    Point *search(Slice &k) {
         return (root == NULL) ? NULL : root->search(k);
     }
 
+    // function to search for N-th key value pair
+    Point *search(int N) {
+        return (root == NULL) ? NULL : root->search(N);
+    }
+
     // The main function that inserts a new point in this B-Tree
-    void insert(Point& p);
+    void insert(Point &p);
 
     // The main function that removes a key from this B-Tree
-    bool remove(Slice& k);
+    bool remove(Slice &k);
 };
 
 // Constructor for BTreeNode class
@@ -154,7 +163,8 @@ BTreeNode::BTreeNode(int _t, bool _leaf) {
     // Allocate memory for maximum number of possible keys
     // and child pointers
     points = new Point[2 * t - 1];
-    C = new BTreeNode*[2 * t];
+    endingAtIthChild = new int[2 * t];
+    C = new BTreeNode *[2 * t];
 
     // Initialize the number of data points as 0
     n = 0;
@@ -185,14 +195,14 @@ void BTreeNode::traverse() {
 }
 
 // Function to search key k in subtree rooted with this node
-Point* BTreeNode::search(Slice& k) {
+Point *BTreeNode::search(Slice &k) {
     // Find the first key greater than or equal to k
     int i = 0;
     while (i < n && strComp(k, points[i].key) > 0)
         i++;
 
     // If the found key is equal to k, return this point
-    if (strComp(k, points[i].key) == 0)
+    if (i < n && strComp(k, points[i].key) == 0)
         return &points[i];
 
     // If the key is not found here and this is a leaf node
@@ -203,8 +213,32 @@ Point* BTreeNode::search(Slice& k) {
     return C[i]->search(k);
 }
 
+Point *BTreeNode::search(int N) {
+    // Find the first key greater than or equal to k
+    // for n data points I have n+1 children
+    int i = 0, cnt = 0;
+
+    for (; i <= n; i++) {
+        if (cnt + endingAtIthChild[i] < N) {
+            cnt += endingAtIthChild[i];
+        } else {
+            return C[i]->search(N - cnt);
+        }
+
+        if (i < n) {
+            if (cnt + 1 < N) {
+                cnt++;
+            } else {
+                return &points[i];
+            }
+        }
+    }
+
+    return NULL;
+}
+
 // The main function that inserts a new point in this B-Tree
-void BTree::insert(Point& p) {
+void BTree::insert(Point &p) {
     // If tree is empty
     if (root == NULL) {
         // Allocate memory for root
@@ -215,7 +249,7 @@ void BTree::insert(Point& p) {
         // If root is full, then tree grows in height
         if (root->n == 2 * t - 1) {
             // Allocate memory for new root
-            BTreeNode* s = new BTreeNode(t, false);
+            BTreeNode *s = new BTreeNode(t, false);
 
             // Make old root as child of new root
             s->C[0] = root;
@@ -240,7 +274,7 @@ void BTree::insert(Point& p) {
 // A utility function to insert a new point in this node
 // The assumption is, the node must be non-full when this
 // function is called
-void BTreeNode::insertNonFull(Point& p) {
+void BTreeNode::insertNonFull(Point &p) {
     // Initialize index as index of rightmost element
     int i = n - 1;
 
@@ -280,10 +314,10 @@ void BTreeNode::insertNonFull(Point& p) {
 
 // A utility function to split the child y of this node
 // Note that y must be full when this function is called
-void BTreeNode::splitChild(int i, BTreeNode* y) {
+void BTreeNode::splitChild(int i, BTreeNode *y) {
     // Create a new node which is going to store (t-1) points
     // of y
-    BTreeNode* z = new BTreeNode(y->t, y->leaf);
+    BTreeNode *z = new BTreeNode(y->t, y->leaf);
     z->n = t - 1;
 
     // Copy the last (t-1) points of y to z
@@ -321,7 +355,7 @@ void BTreeNode::splitChild(int i, BTreeNode* y) {
 
 // A utility function that returns the index of the first key that is
 // greater than or equal to k
-int BTreeNode::findKey(Slice& k) {
+int BTreeNode::findKey(Slice &k) {
     int idx = 0;
     while (idx < n && strComp(points[idx].key, k) < 0)
         idx++;
@@ -330,7 +364,7 @@ int BTreeNode::findKey(Slice& k) {
 
 // A wrapper function to remove the key k from the sub-tree rooted with this
 // node
-bool BTreeNode::remove(Slice& k) {
+bool BTreeNode::remove(Slice &k) {
     int idx = findKey(k);
 
     // The key to be removed is present in this node
@@ -397,20 +431,20 @@ void BTreeNode::removeFromNonLeaf(int idx) {
         C[idx]->remove(pred.key);
     }
 
-    // If the child C[idx] has less that t keys, examine C[idx+1].
-    // If C[idx+1] has atleast t keys, find the successor 'succ' of k in
-    // the subtree rooted at C[idx+1]
-    // Replace p by succ
-    // Recursively delete succ in C[idx+1]
+        // If the child C[idx] has less that t keys, examine C[idx+1].
+        // If C[idx+1] has atleast t keys, find the successor 'succ' of k in
+        // the subtree rooted at C[idx+1]
+        // Replace p by succ
+        // Recursively delete succ in C[idx+1]
     else if (C[idx + 1]->n >= t) {
         Point succ = getSucc(idx);
         points[idx] = succ;
         C[idx + 1]->remove(succ.key);
     }
 
-    // If both C[idx] and C[idx+1] has less that t keys, merge p and all of
-    // C[idx+1] into C[idx] Now C[idx] contains 2t-1 keys Free C[idx+1] and
-    // recursively delete k from C[idx]
+        // If both C[idx] and C[idx+1] has less that t keys, merge p and all of
+        // C[idx+1] into C[idx] Now C[idx] contains 2t-1 keys Free C[idx+1] and
+        // recursively delete k from C[idx]
     else {
         merge(idx);
         C[idx]->remove(p.key);
@@ -421,7 +455,7 @@ void BTreeNode::removeFromNonLeaf(int idx) {
 // A function to get predecessor of points[idx].key
 Point BTreeNode::getPred(int idx) {
     // Keep moving to the right most node until we reach a leaf
-    BTreeNode* cur = C[idx];
+    BTreeNode *cur = C[idx];
     while (!cur->leaf)
         cur = cur->C[cur->n];
 
@@ -432,7 +466,7 @@ Point BTreeNode::getPred(int idx) {
 Point BTreeNode::getSucc(int idx) {
     // Keep moving the left most node starting from C[idx+1] until we reach a
     // leaf
-    BTreeNode* cur = C[idx + 1];
+    BTreeNode *cur = C[idx + 1];
     while (!cur->leaf)
         cur = cur->C[0];
 
@@ -447,14 +481,14 @@ void BTreeNode::fill(int idx) {
     if (idx != 0 && C[idx - 1]->n >= t)
         borrowFromPrev(idx);
 
-    // If the next child(C[idx+1]) has more than t-1 keys, borrow a key
-    // from that child
+        // If the next child(C[idx+1]) has more than t-1 keys, borrow a key
+        // from that child
     else if (idx != n && C[idx + 1]->n >= t)
         borrowFromNext(idx);
 
-    // Merge C[idx] with its sibling
-    // If C[idx] is the last child, merge it with with its previous sibling
-    // Otherwise merge it with its next sibling
+        // Merge C[idx] with its sibling
+        // If C[idx] is the last child, merge it with with its previous sibling
+        // Otherwise merge it with its next sibling
     else {
         if (idx != n)
             merge(idx);
@@ -467,8 +501,8 @@ void BTreeNode::fill(int idx) {
 // A function to borrow a point from C[idx-1] and insert it
 // into C[idx]
 void BTreeNode::borrowFromPrev(int idx) {
-    BTreeNode* child = C[idx];
-    BTreeNode* sibling = C[idx - 1];
+    BTreeNode *child = C[idx];
+    BTreeNode *sibling = C[idx - 1];
 
     // The last point from C[idx-1] goes up to the parent and point[idx-1]
     // from parent is inserted as the first point in C[idx]. Thus, the sibling
@@ -504,8 +538,8 @@ void BTreeNode::borrowFromPrev(int idx) {
 // A function to borrow a point from the C[idx+1] and place
 // it in C[idx]
 void BTreeNode::borrowFromNext(int idx) {
-    BTreeNode* child = C[idx];
-    BTreeNode* sibling = C[idx + 1];
+    BTreeNode *child = C[idx];
+    BTreeNode *sibling = C[idx + 1];
 
     // points[idx] is inserted as the last key in C[idx]
     child->points[(child->n)] = points[idx];
@@ -539,8 +573,8 @@ void BTreeNode::borrowFromNext(int idx) {
 // A function to merge C[idx] with C[idx+1]
 // C[idx+1] is freed after merging
 void BTreeNode::merge(int idx) {
-    BTreeNode* child = C[idx];
-    BTreeNode* sibling = C[idx + 1];
+    BTreeNode *child = C[idx];
+    BTreeNode *sibling = C[idx + 1];
 
     // Pulling a point from the current node and inserting it into (t-1)th
     // position of C[idx]
@@ -575,7 +609,7 @@ void BTreeNode::merge(int idx) {
     return;
 }
 
-bool BTree::remove(Slice& k) {
+bool BTree::remove(Slice &k) {
     if (!root) {
         // cout << "The tree is empty\n";
         return false;
@@ -587,7 +621,7 @@ bool BTree::remove(Slice& k) {
     // If the root node has 0 keys, make its first child as the new root
     //  if it has a child, otherwise set root as NULL
     if (root->n == 0) {
-        BTreeNode* tmp = root;
+        BTreeNode *tmp = root;
         if (root->leaf)
             root = NULL;
         else
@@ -600,21 +634,23 @@ bool BTree::remove(Slice& k) {
 }
 
 class kvStore {
-    BTree* tree;
+    BTree *tree;
 
-   public:
+public:
     kvStore(uint64_t max_entries) {
         tree = new BTree(10);
     }
-    bool get(Slice& key, Slice& value) {
-        Point* p = tree->search(key);
+
+    bool get(Slice &key, Slice &value) {
+        Point *p = tree->search(key);
         if (p == NULL) {
             return false;
         }
         value = p->val;
         return true;
     }
-    bool put(Slice& key, Slice& value) {
+
+    bool put(Slice &key, Slice &value) {
         bool rem = tree->remove(key);
         Point p;
         p.key = key;
@@ -623,8 +659,24 @@ class kvStore {
 
         return rem;
     }
-    bool del(Slice& key) {
+
+    bool del(Slice &key) {
         return tree->remove(key);
+    }
+
+    bool get(int N, Slice &key, Slice &value) {
+        Point *p = tree->search(N);
+        if (p == NULL) {
+            return false;
+        }
+
+        key = p->key;
+        value = p->val;
+        return true;
+    }
+
+    bool del(int N) {
+        return tree->removeNth(N);
     }
 };
 
