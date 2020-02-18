@@ -26,6 +26,7 @@ struct Node {
   Slice data;
   COLOR color; 
   Node *left, *right, *parent; 
+  int size;
   
   Node(Slice key, Slice data) : key(key), data(data) { 
     parent = left = right = NULL; 
@@ -89,9 +90,14 @@ class RBTree {
       nParent->left->parent = x; 
   
     nParent->left = x; 
+
+	nParent->size = x->size;
+	x->size = x->left->size + x->right->size +1;
   } 
   
   void rightRotate(Node *x) { 
+    // y is x
+    // nParent is x
     Node *nParent = x->left; 
   
     if (x == root) 
@@ -105,6 +111,9 @@ class RBTree {
       nParent->right->parent = x; 
   
     nParent->right = x; 
+
+	nParent->size = x->size;
+	x->size = x->left->size + x->right->size + 1;
   } 
   
   void swapColors(Node *x1, Node *x2) { 
@@ -182,6 +191,16 @@ class RBTree {
   } 
   
   void deleteNode(Node *v) { 
+
+    if(v != root){
+      Node *tmp = v->parent;
+      while(tmp != root){
+        tmp->size--;
+        tmp = tmp->parent;
+      }
+      root->size--;
+    }
+
     Node *u = BSTreplace(v); 
   
     bool uvBlack = ((u == NULL or u->color == BLACK) and (v->color == BLACK)); 
@@ -300,22 +319,38 @@ public:
   Node *getRoot() { return root; } 
   
   Node *search(Slice &key) { 
+    bool found = 0;
     Node *temp = root; 
     while (temp != NULL) { 
+      temp->size++;
       if (key < temp->key) { 
-        if (temp->left == NULL) 
-          break; 
+        if (temp->left == NULL) {
+          found = 1;
+          break;
+        }
         else
           temp = temp->left; 
       } else if (key == temp->key) { 
-        break; 
+        found = 1;
+        break;
       } else {
-        if (temp->right == NULL) 
+        if (temp->right == NULL) {
+          found = 1;
           break; 
+        }
         else
           temp = temp->right; 
       } 
     } 
+    
+    if(found && temp->key == key){
+      while (temp != root) {
+          temp->size--;
+          temp = temp->parent;
+      }
+      temp->size--;
+    }
+
     return temp;
   } 
   
@@ -348,6 +383,7 @@ public:
 
   bool put(Slice &A, Slice &B) { 
     Node *newNode = new Node(A, B); 
+    newNode->size = 1;
     if (root == NULL) { 
       newNode->color = BLACK; 
       root = newNode; 
@@ -390,7 +426,7 @@ public:
     if (root == NULL) 
       cout << "Tree is empty" << endl; 
     else
-      inorder(root); 
+      inorder(root);
     cout << endl; 
   } 
   
