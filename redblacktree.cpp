@@ -24,12 +24,14 @@ enum Color {RED, BLACK};
 struct Node 
 { 
     Slice data; 
+    Slice store;
     bool color; 
     Node *left, *right, *parent; 
   
-    Node(Slice data) 
+    Node(Slice data, Slice store) 
     { 
        this->data = data; 
+       this->store = store;
        left = right = parent = NULL; 
        this->color = RED; 
     } 
@@ -45,26 +47,21 @@ void insert(const int &n);
 void inorder(); 
 void levelOrder(); 
   
-// A recursive function to do level order traversal 
-/*void inorderHelper(Node *root) 
+void inorderHelper(Node *root) 
 { 
     if (root == NULL) 
         return; 
   
     inorderHelper(root->left); 
-    cout << root->data << "  "; 
+    cout << root->data.data << "  "; 
     inorderHelper(root->right); 
-} */
+} 
   
-/* A utility function to insert a new node with given key 
-   in BST */
 Node* BSTInsert(Node* root, Node *pt) 
 { 
-    /* If the tree is empty, return a new node */
     if (root == NULL) 
        return pt; 
   
-    /* Otherwise, recur down the tree */
     if (pt->data < root->data) 
     { 
         root->left  = BSTInsert(root->left, pt); 
@@ -76,34 +73,57 @@ Node* BSTInsert(Node* root, Node *pt)
         root->right->parent = root; 
     } 
   
-    /* return the (unchanged) node pointer */
     return root; 
 } 
   
-// Utility function to do level order traversal 
+struct qnode{
+    Node * val;
+    qnode * next;
+};
+
+qnode * qhead;
+qnode * qtail;
+
 void levelOrderHelper(Node *root) 
 { 
     if (root == NULL) 
         return; 
   
-    std::queue<Node *> q; 
-    q.push(root); 
-  
-    while (!q.empty()) 
+    qhead = (qnode*)malloc(sizeof(qnode));
+    qtail = qhead;
+    qhead->val = root;
+    qhead->next = NULL;
+
+    while (qhead->next)
     { 
-        Node *temp = q.front(); 
-        cout << temp->data << "  "; 
-        q.pop(); 
+        Node *temp = qhead->val; 
+        cout << temp->data.data << "  "; 
+        
+        qnode* tmp = qhead;
+        qhead = qhead->next;
+        free(tmp);
   
-        if (temp->left != NULL) 
-            q.push(temp->left); 
+        if (temp->left != NULL) {
+            qnode* newnode;
+            newnode = (qnode*)malloc(sizeof(qnode));
+            newnode->val = temp->left;
+            newnode->next = NULL;
+            qtail->next = newnode;
+            qtail = newnode;
+        }
   
-        if (temp->right != NULL) 
-            q.push(temp->right); 
+        if (temp->right != NULL) {
+            qnode* newnode;
+            newnode = (qnode*)malloc(sizeof(qnode));
+            newnode->val = temp->right;
+            newnode->next = NULL;
+            qtail->next = newnode;
+            qtail = newnode;
+        }
     } 
 } 
   
-void RBTree::rotateLeft(Node *&root, Node *&pt) 
+void rotateLeft(Node *&root, Node *&pt) 
 { 
     Node *pt_right = pt->right; 
   
@@ -127,7 +147,7 @@ void RBTree::rotateLeft(Node *&root, Node *&pt)
     pt->parent = pt_right; 
 } 
   
-void RBTree::rotateRight(Node *&root, Node *&pt) 
+void rotateRight(Node *&root, Node *&pt) 
 { 
     Node *pt_left = pt->left; 
   
@@ -152,7 +172,7 @@ void RBTree::rotateRight(Node *&root, Node *&pt)
 } 
   
 // This function fixes violations caused by BST insertion 
-void RBTree::fixViolation(Node *&root, Node *&pt) 
+void fixViolation(Node *&root, Node *&pt) 
 { 
     Node *parent_pt = NULL; 
     Node *grand_parent_pt = NULL; 
@@ -245,9 +265,9 @@ void RBTree::fixViolation(Node *&root, Node *&pt)
 } 
   
 // Function to insert a new node with given data 
-void RBTree::insert(const int &data) 
+void insert(const Slice &data, const Slice &store) 
 { 
-    Node *pt = new Node(data); 
+    Node *pt = new Node(data, store);
   
     // Do a normal BST insert 
     root = BSTInsert(root, pt); 
@@ -257,5 +277,13 @@ void RBTree::insert(const int &data)
 } 
   
 // Function to do inorder and level order traversals 
-void RBTree::inorder()     {  inorderHelper(root);} 
-void RBTree::levelOrder()  {  levelOrderHelper(root); } 
+void inorder()     {  inorderHelper(root);} 
+void levelOrder()  {  levelOrderHelper(root); } 
+
+int main(){
+    Slice A;
+    A.size = 5;
+    strcpy(A.data, "hello");
+    insert(A, A);
+    inorder();
+}
