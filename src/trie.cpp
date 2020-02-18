@@ -19,15 +19,15 @@ using namespace std;
 
 using namespace __gnu_pbds;
 
-template <class key, class value, class cmp = std::less<key>>
+template<class key, class value, class cmp = std::less<key>>
 using ordered_map =
-    tree<key, value, cmp, rb_tree_tag, tree_order_statistics_node_update>;
+tree<key, value, cmp, rb_tree_tag, tree_order_statistics_node_update>;
 
 ordered_map<string, string> naive;
 ordered_map<string, string>::iterator it;
 
 char *getCharPointer(const string &s) {
-    char *valueChar = (char *)malloc(s.size() + 1), *org = valueChar;
+    char *valueChar = (char *) malloc(s.size() + 1), *org = valueChar;
     for (int i = 0; i < s.size(); i++) {
         *valueChar = s[i];
         valueChar++;
@@ -58,7 +58,7 @@ void fileCheck() {
     file >> opCount;
     std::cout << opCount << endl;
 
-    kvStore fastMap((uint64_t)opCount);
+    kvStore fastMap((uint64_t) opCount);
 
     for (int i = 1; i <= opCount; i++) {
         int op;
@@ -151,17 +151,22 @@ void fileCheck() {
                 break;
             case LOOKUPN_OP:
                 file >> nth;
-                // pbds is zero indexed
-                it = naive.find_by_order(nth - 1);
-                value = (*it).second;
+                wasFound = true;
+                if (nth > naive.size()) {
+                    wasFound = false;
+                } else {
+                    // pbds is zero indexed
+                    it = naive.find_by_order(nth - 1);
+                    value = (*it).second;
+                }
 
                 found = fastMap.get(nth, x, y);
 
-                if (!found) {
+                if (found != wasFound) {
                     fail(0);
                 }
 
-                if (strcmp(value.c_str(), y.data)) {
+                if (found && strcmp(value.c_str(), y.data)) {
                     cout << value << endl;
                     printf("%s\n", y.data);
                     fail(1);
@@ -170,13 +175,18 @@ void fileCheck() {
                 break;
             case ERASEN_OP:
                 file >> nth;
-                // pbds is zero indexed
-                it = naive.find_by_order(nth - 1);
-                naive.erase(it);
+                wasFound = true;
+                if (nth > naive.size()) {
+                    wasFound = false;
+                } else {
+                    // pbds is zero indexed
+                    it = naive.find_by_order(nth - 1);
+                    naive.erase(it);
+                }
 
                 found = fastMap.del(nth);
 
-                if (!found) {
+                if (found != wasFound) {
                     fail(0);
                 }
 
