@@ -5,7 +5,7 @@
 #include <string>
 #include <string.h>
 #include <vector>
-#include "btree.cpp"
+#include "rbtree.cpp"
 
 using namespace std;
 #define LOOKUP_OP 0
@@ -19,15 +19,15 @@ using namespace std;
 
 using namespace __gnu_pbds;
 
-template<class key, class value, class cmp = std::less<key>>
-using ordered_map = tree<key, value, cmp, rb_tree_tag, tree_order_statistics_node_update>;
+template <class key, class value, class cmp = std::less<key>>
+using ordered_map =
+    tree<key, value, cmp, rb_tree_tag, tree_order_statistics_node_update>;
 
 ordered_map<string, string> naive;
 ordered_map<string, string>::iterator it;
 
-
 char *getCharPointer(const string &s) {
-    char *valueChar = (char *) malloc(s.size() + 1), *org = valueChar;
+    char *valueChar = (char *)malloc(s.size() + 1), *org = valueChar;
     for (int i = 0; i < s.size(); i++) {
         *valueChar = s[i];
         valueChar++;
@@ -49,8 +49,8 @@ void setStringIntoSlice(string &s, Slice &slc) {
     }
 
 void fileCheck() {
-//    map<string, string> naive;
-    const char *FILE_PATH = "../tests/genInp.txt";
+    //    map<string, string> naive;
+    const char *FILE_PATH = "../tests/smallInp.txt";
 
     ifstream file(FILE_PATH);
 
@@ -58,7 +58,7 @@ void fileCheck() {
     file >> opCount;
     std::cout << opCount << endl;
 
-    kvStore fastMap((uint64_t) opCount);
+    kvStore fastMap((uint64_t)opCount);
 
     for (int i = 1; i <= opCount; i++) {
         int op;
@@ -151,7 +151,8 @@ void fileCheck() {
                 break;
             case LOOKUPN_OP:
                 file >> nth;
-                it = naive.find_by_order(nth);
+                // pbds is zero indexed
+                it = naive.find_by_order(nth - 1);
                 value = (*it).second;
 
                 found = fastMap.get(nth, x, y);
@@ -169,7 +170,8 @@ void fileCheck() {
                 break;
             case ERASEN_OP:
                 file >> nth;
-                it = naive.find_by_order(nth);
+                // pbds is zero indexed
+                it = naive.find_by_order(nth - 1);
                 naive.erase(it);
 
                 found = fastMap.del(nth);
