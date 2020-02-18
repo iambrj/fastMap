@@ -5,49 +5,51 @@
 #include <string>
 #include <string.h>
 #include <vector>
-#include "btree.cpp"
+#include "fast_map.hpp"
+
 using namespace std;
 #define LOOKUP_OP 0
 #define INSERT_OP 1
 #define ERASE_OP 2
 
-// void naiveCheck() {
-//     TrieNode *root = new TrieNode();
-//     vector<char *> strs = {"abcd", "efgh", "abdef"};
-//     vector<char *> values = {"vals", "tree", "abcd"};
+void naiveCheck() {
+    TrieNode *root = new TrieNode();
+    vector<char *> strs = {"abcd", "efgh", "abdef"};
+    vector<char *> values = {"vals", "tree", "abcd"};
 
-//     for (int i = 0; i < strs.size(); i++) {
-//         int isOverwritten = root->insert(strs[i], strlen(strs[i]), values[i]);
-//         printf("%d\n", isOverwritten);
-//     }
+    for (int i = 0; i < strs.size(); i++) {
+        int isOverwritten = root->insert(strs[i], strlen(strs[i]), values[i]);
+        printf("%d\n", isOverwritten);
+    }
 
-//     for (auto key : strs) {
-//         char *value = nullptr;
-//         root->lookup(key, strlen(key), value);
+    for (auto key : strs) {
+        char *value = nullptr;
+        root->lookup(key, strlen(key), value);
 
-//         if (value == nullptr) {
-//             printf("Not found!\n");
-//         } else {
-//             printf("%s\n", value);
-//         }
+        if (value == nullptr) {
+            printf("Not found!\n");
+        } else {
+            printf("%s\n", value);
+        }
 
-//         root->erase(key);
-//         root->lookup(key, strlen(key), value);
+        root->erase(key);
+        root->lookup(key, strlen(key), value);
 
-//         if (value == nullptr) {
-//             printf("Not found!\n");
-//         } else {
-//             printf("%s\n", value);
-//         }
-//     }
-// }
+        if (value == nullptr) {
+            printf("Not found!\n");
+        } else {
+            printf("%s\n", value);
+        }
+    }
+}
 
-char *getCharPointer(string &s) {
-    char *valueChar = (char *)malloc(s.size()), *org = valueChar;
+char *getCharPointer(const string &s) {
+    char *valueChar = (char *)malloc(s.size() + 1), *org = valueChar;
     for (int i = 0; i < s.size(); i++) {
         *valueChar = s[i];
         valueChar++;
     }
+    *valueChar = 0;
 
     return org;
 }
@@ -62,6 +64,7 @@ void setStringIntoSlice(string &s, Slice &slc) {
         printf("Mismatch at operation %d optype %d\n", i, op); \
         return;                                                \
     }
+
 void fileCheck() {
     map<string, string> naive;
     const char *FILE_PATH = "../tests/genInp.txt";
@@ -70,8 +73,7 @@ void fileCheck() {
 
     int opCount;
     file >> opCount;
-    // std::cout << opCount << endl;
-    // return;
+    std::cout << opCount << endl;
 
     kvStore fastMap((uint64_t)opCount);
 
@@ -82,6 +84,7 @@ void fileCheck() {
         file >> key;
         string actual, value;
         int found, wasFound, actuallyFound, isOverwrite;
+        map<string, string>::iterator it;
         Slice x, y, z;
 
         switch (op) {
@@ -94,15 +97,14 @@ void fileCheck() {
                 wasFound = fastMap.get(x, y);
 
                 if (wasFound != actuallyFound) {
-                    cout << wasFound << " " << actuallyFound << endl;
-                    fail;
+                    fail(0);
                 }
 
                 if (wasFound) {
-                    if (!strcmp(actual.c_str(), y.data)) {
+                    if (strcmp(actual.c_str(), y.data)) {
                         cout << actual << endl;
                         printf("%s\n", y.data);
-                        fail;
+                        fail(1);
                     }
                 }
 
@@ -114,49 +116,52 @@ void fileCheck() {
                 naive[key] = value;
 
                 setStringIntoSlice(key, x);
-                setStringIntoSlice(value, y);
 
                 found = fastMap.get(x, y);
 
                 if (found != isOverwrite) {
                     cout << found << " " << isOverwrite << endl;
-                    fail;
+                    fail(0);
                 }
+
+                setStringIntoSlice(value, y);
 
                 fastMap.put(x, y);
                 found = fastMap.get(x, z);
 
                 if (!found) {
-                    cout << "not found\n";
-                    fail;
+                    printf("%s\n", x.data);
+                    printf("%s\n", y.data);
+                    fail(1);
                 }
 
-                if (!strcmp(value.c_str(), z.data)) {
+                if (strcmp(value.c_str(), z.data)) {
                     cout << value << endl;
                     printf("%s\n", z.data);
-                    fail;
+                    fail(2);
                 }
 
                 break;
             case ERASE_OP:
-                naive.erase(naive.find(key));
+                it = naive.find(key);
+                found = it != naive.end() && (*it).second.size() > 0;
+                if (found)
+                    naive.erase(it);
 
                 setStringIntoSlice(key, x);
 
                 // check if erased correctly from fastmap
-                found = fastMap.del(x);
+                wasFound = fastMap.del(x);
 
-                if (!found) {
-                    cout << "not found\n";
-
-                    fail;
+                if (found != wasFound) {
+                    fail(0);
                 }
 
                 found = fastMap.get(x, y);
 
                 if (found) {
                     cout << "not found\n";
-                    fail;
+                    fail(1);
                 }
 
                 break;
@@ -164,12 +169,11 @@ void fileCheck() {
             default:
                 break;
         }
-
-        printf("Completed op number %d\n", i);
     }
 }
 
 int main() {
     fileCheck();
+    printf("File check done\n");
     return 0;
 }
