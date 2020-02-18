@@ -33,116 +33,116 @@ void printPoint(const Point& p) {
 }
 
 int strComp(Slice& a, Slice& b) {
-    // because the strings may not have '\0' at the end
-    // if (a.size == b.size) { // not needed
-    //     return strncmp(a.data, b.data, a.size);
-    // }
+    int minn = MIN(a.size, b.size);
+    printf("%.*s %.*s\n", a.size, a.data, b.size, b.data);
 
-    int res = strncmp(a.data, b.data, MIN(a.size, b.size));
+    int res = strncmp(a.data, b.data, minn);
+
     if (res != 0) {
         return res;
     }
 
     return a.size - b.size;
-
-
 }
 
 // A BTree node
 class BTreeNode {
-        Point* points;      // An array of data points
-        int t;          // Minimum degree (defines the range for number of keys)
-        BTreeNode **C;  // An array of child pointers
-        int n;          // Current number of data points
-        bool leaf;      // Is true when node is leaf. Otherwise false
+    Point* points;  // An array of data points
+    int t;          // Minimum degree (defines the range for number of keys)
+    BTreeNode** C;  // An array of child pointers
+    int n;          // Current number of data points
+    bool leaf;      // Is true when node is leaf. Otherwise false
 
-    public:
-        BTreeNode(int _t, bool _leaf);  // Constructor
+   public:
+    BTreeNode(int _t, bool _leaf);  // Constructor
 
-        // A function to traverse all nodes in a subtree rooted with this node
-        void traverse();
+    // A function to traverse all nodes in a subtree rooted with this node
+    void traverse();
 
-        // A function to search a key in the subtree rooted with this node.
-        Point* search(Slice& k);  // returns NULL if k is not present.
+    // A function to search a key in the subtree rooted with this node.
+    Point* search(Slice& k);  // returns NULL if k is not present.
 
-        // A utility function to insert a new point in the subtree rooted with
-        // this node. The assumption is, the node must be non-full when this
-        // function is called
-        void insertNonFull(Point& p);
+    // A utility function to insert a new point in the subtree rooted with
+    // this node. The assumption is, the node must be non-full when this
+    // function is called
+    void insertNonFull(Point& p);
 
-        // A utility function to split the child y of this node. i is index of y in
-        // child array C[].  The Child y must be full when this function is called
-        void splitChild(int i, BTreeNode* y);
+    // A utility function to split the child y of this node. i is index of y in
+    // child array C[].  The Child y must be full when this function is called
+    void splitChild(int i, BTreeNode* y);
 
-        // A function that returns the index of the first key that is greater
-        // or equal to k
-        int findKey(Slice& k);
+    // A function that returns the index of the first key that is greater
+    // or equal to k
+    int findKey(Slice& k);
 
-        // A wrapper function to remove the key k in subtree rooted with
-        // this node.
-        bool remove(Slice& k);
+    // A wrapper function to remove the key k in subtree rooted with
+    // this node.
+    bool remove(Slice& k);
 
-        // A function to remove the point present in idx-th position in
-        // this node which is a leaf
-        void removeFromLeaf(int idx);
+    // A function to remove the point present in idx-th position in
+    // this node which is a leaf
+    void removeFromLeaf(int idx);
 
-        // A function to remove the point present in idx-th position in
-        // this node which is a non-leaf node
-        void removeFromNonLeaf(int idx);
+    // A function to remove the point present in idx-th position in
+    // this node which is a non-leaf node
+    void removeFromNonLeaf(int idx);
 
-        // A function to get the predecessor of the key- where the key
-        // is present in the idx-th position in the node
-        Point getPred(int idx);
+    // A function to get the predecessor of the key- where the key
+    // is present in the idx-th position in the node
+    Point getPred(int idx);
 
-        // A function to get the successor of the key- where the key
-        // is present in the idx-th position in the node
-        Point getSucc(int idx);
+    // A function to get the successor of the key- where the key
+    // is present in the idx-th position in the node
+    Point getSucc(int idx);
 
-        // A function to fill up the child node present in the idx-th
-        // position in the C[] array if that child has less than t-1 points
-        void fill(int idx);
+    // A function to fill up the child node present in the idx-th
+    // position in the C[] array if that child has less than t-1 points
+    void fill(int idx);
 
-        // A function to borrow a point from the C[idx-1]-th node and place
-        // it in C[idx]th node
-        void borrowFromPrev(int idx);
+    // A function to borrow a point from the C[idx-1]-th node and place
+    // it in C[idx]th node
+    void borrowFromPrev(int idx);
 
-        // A function to borrow a point from the C[idx+1]-th node and place it
-        // in C[idx]th node
-        void borrowFromNext(int idx);
+    // A function to borrow a point from the C[idx+1]-th node and place it
+    // in C[idx]th node
+    void borrowFromNext(int idx);
 
-        // A function to merge idx-th child of the node with (idx+1)th child of
-        // the node
-        void merge(int idx);
+    // A function to merge idx-th child of the node with (idx+1)th child of
+    // the node
+    void merge(int idx);
 
-        // Make the BTree friend of this so that we can access private members of this
-        // class in BTree functions
-        friend class BTree;
+    // Make the BTree friend of this so that we can access private members of
+    // this class in BTree functions
+    friend class BTree;
 };
 
 // A BTree
 class BTree {
-        BTreeNode *root;  // Pointer to root node
-        int t;            // Minimum degree
-    public:
-        // Constructor (Initializes tree as empty)
-        BTree(int _t) {
-            root = NULL;
-            t = _t;
-        }
+    BTreeNode* root;  // Pointer to root node
+    int t;            // Minimum degree
+   public:
+    // Constructor (Initializes tree as empty)
+    BTree(int _t) {
+        root = NULL;
+        t = _t;
+    }
 
-        // function to traverse the tree
-        void traverse() {
-            if (root != NULL) root->traverse();
-        }
+    // function to traverse the tree
+    void traverse() {
+        if (root != NULL)
+            root->traverse();
+    }
 
-        // function to search a key in this tree
-        Point* search(Slice& k) { return (root == NULL) ? NULL : root->search(k); }
+    // function to search a key in this tree
+    Point* search(Slice& k) {
+        return (root == NULL) ? NULL : root->search(k);
+    }
 
-        // The main function that inserts a new point in this B-Tree
-        void insert(Point& p);
+    // The main function that inserts a new point in this B-Tree
+    void insert(Point& p);
 
-        // The main function that removes a key from this B-Tree
-        bool remove(Slice &k);
+    // The main function that removes a key from this B-Tree
+    bool remove(Slice& k);
 };
 
 // Constructor for BTreeNode class
@@ -154,7 +154,7 @@ BTreeNode::BTreeNode(int _t, bool _leaf) {
     // Allocate memory for maximum number of possible keys
     // and child pointers
     points = new Point[2 * t - 1];
-    C = new BTreeNode* [2 * t];
+    C = new BTreeNode*[2 * t];
 
     // Initialize the number of data points as 0
     n = 0;
@@ -178,7 +178,7 @@ void BTreeNode::traverse() {
             printPoint(points[i]);
         }
     }
-    
+
     // Traverse the subtree rooted with last child
     if (leaf == false)
         C[i]->traverse();
@@ -210,8 +210,8 @@ void BTree::insert(Point& p) {
         // Allocate memory for root
         root = new BTreeNode(t, true);
         root->points[0] = p;  // Insert point
-        root->n = 1;        // Update number of keys in root
-    } else {                // If tree is not empty
+        root->n = 1;          // Update number of keys in root
+    } else {                  // If tree is not empty
         // If root is full, then tree grows in height
         if (root->n == 2 * t - 1) {
             // Allocate memory for new root
@@ -328,7 +328,8 @@ int BTreeNode::findKey(Slice& k) {
     return idx;
 }
 
-// A wrapper function to remove the key k from the sub-tree rooted with this node
+// A wrapper function to remove the key k from the sub-tree rooted with this
+// node
 bool BTreeNode::remove(Slice& k) {
     int idx = findKey(k);
 
@@ -349,9 +350,9 @@ bool BTreeNode::remove(Slice& k) {
             return false;
         }
 
-        // The key to be removed is present in the sub-tree rooted with this node
-        // The flag indicates whether the key is present in the sub-tree rooted
-        // with the last child of this node
+        // The key to be removed is present in the sub-tree rooted with this
+        // node The flag indicates whether the key is present in the sub-tree
+        // rooted with the last child of this node
         bool flag = (idx == n);
 
         // If the child where the key is supposed to exist has less that t keys,
@@ -359,9 +360,9 @@ bool BTreeNode::remove(Slice& k) {
         if (C[idx]->n < t)
             fill(idx);
 
-        // If the last child has been merged, it must have merged with the previous
-        // child and so we recurse on the (idx-1)th child. Else, we recurse on the
-        // (idx)th child which now has atleast t keys
+        // If the last child has been merged, it must have merged with the
+        // previous child and so we recurse on the (idx-1)th child. Else, we
+        // recurse on the (idx)th child which now has atleast t keys
         if (flag && idx > n)
             return C[idx - 1]->remove(k);
         else
@@ -381,7 +382,8 @@ void BTreeNode::removeFromLeaf(int idx) {
     return;
 }
 
-// A function to remove the idx-th point from this node - which is a non-leaf node
+// A function to remove the idx-th point from this node - which is a non-leaf
+// node
 void BTreeNode::removeFromNonLeaf(int idx) {
     Point p = points[idx];
 
@@ -406,10 +408,9 @@ void BTreeNode::removeFromNonLeaf(int idx) {
         C[idx + 1]->remove(succ.key);
     }
 
-    // If both C[idx] and C[idx+1] has less that t keys, merge p and all of C[idx+1]
-    // into C[idx]
-    // Now C[idx] contains 2t-1 keys
-    // Free C[idx+1] and recursively delete k from C[idx]
+    // If both C[idx] and C[idx+1] has less that t keys, merge p and all of
+    // C[idx+1] into C[idx] Now C[idx] contains 2t-1 keys Free C[idx+1] and
+    // recursively delete k from C[idx]
     else {
         merge(idx);
         C[idx]->remove(p.key);
@@ -429,7 +430,8 @@ Point BTreeNode::getPred(int idx) {
 }
 
 Point BTreeNode::getSucc(int idx) {
-    // Keep moving the left most node starting from C[idx+1] until we reach a leaf
+    // Keep moving the left most node starting from C[idx+1] until we reach a
+    // leaf
     BTreeNode* cur = C[idx + 1];
     while (!cur->leaf)
         cur = cur->C[0];
@@ -469,8 +471,8 @@ void BTreeNode::borrowFromPrev(int idx) {
     BTreeNode* sibling = C[idx - 1];
 
     // The last point from C[idx-1] goes up to the parent and point[idx-1]
-    // from parent is inserted as the first point in C[idx]. Thus, the sibling loses
-    // one point and child gains one point
+    // from parent is inserted as the first point in C[idx]. Thus, the sibling
+    // loses one point and child gains one point
 
     // Moving all key in C[idx] one step ahead
     for (int i = child->n - 1; i >= 0; --i)
@@ -513,7 +515,7 @@ void BTreeNode::borrowFromNext(int idx) {
     if (!(child->leaf))
         child->C[(child->n) + 1] = sibling->C[0];
 
-    //The first point from sibling is inserted into points[idx]
+    // The first point from sibling is inserted into points[idx]
     points[idx] = sibling->points[0];
 
     // Moving all points in sibling one step behind
@@ -598,31 +600,32 @@ bool BTree::remove(Slice& k) {
 }
 
 class kvStore {
-        BTree* tree;
-    public:
-        kvStore(uint64_t max_entries) {
-            tree = new BTree(10);
-        }
-        bool get(Slice& key, Slice& value) {
-            Point* p = tree->search(key);
-            if (p == NULL) {
-                return false;
-            }
-            value = p->val;
-            return true;
-        }
-        bool put(Slice& key, Slice& value) {
-            bool rem = tree->remove(key);
-            Point p;
-            p.key = key;
-            p.val = value;
-            tree->insert(p);
+    BTree* tree;
 
-            return rem;
+   public:
+    kvStore(uint64_t max_entries) {
+        tree = new BTree(10);
+    }
+    bool get(Slice& key, Slice& value) {
+        Point* p = tree->search(key);
+        if (p == NULL) {
+            return false;
         }
-        bool del(Slice& key) {
-            return tree->remove(key);
-        }
+        value = p->val;
+        return true;
+    }
+    bool put(Slice& key, Slice& value) {
+        bool rem = tree->remove(key);
+        Point p;
+        p.key = key;
+        p.val = value;
+        tree->insert(p);
+
+        return rem;
+    }
+    bool del(Slice& key) {
+        return tree->remove(key);
+    }
 };
 
 // int main(void) {
@@ -630,13 +633,15 @@ class kvStore {
 //     Slice key, val;
 //     key.size = 78;
 //     key.data = (char*)malloc(sizeof(char) * key.size);
-//     strncpy(key.data, "BkSvXGxGeYTxJxJafLm BQocDEJXBcleoDZnlyuPzNMImWKRhxGKNXnsDwQgBBLphMdSLXiKMuuaQF", 78);
+//     strncpy(key.data, "BkSvXGxGeYTxJxJafLm
+//     BQocDEJXBcleoDZnlyuPzNMImWKRhxGKNXnsDwQgBBLphMdSLXiKMuuaQF", 78);
 //     val.size = 78;
 //     val.data = (char*)malloc(sizeof(char) * val.size);
-//     strncpy(val.data, "BkSvXGxGeYTxJxJafLm BQocDEJXBcleoDZnlyuPzNMImWKRhxGKNXnsDwQgBBLphMdSLXiKMuuaQF", 78);
+//     strncpy(val.data, "BkSvXGxGeYTxJxJafLm
+//     BQocDEJXBcleoDZnlyuPzNMImWKRhxGKNXnsDwQgBBLphMdSLXiKMuuaQF", 78);
 //     map.put(key, val);
 //     Slice test;
-    
+
 //     map.get(key, test);
 //     printSlice(test);
 // }

@@ -5,43 +5,43 @@
 #include <string>
 #include <string.h>
 #include <vector>
-#include "fast_map.hpp"
+#include "btree.cpp"
 
 using namespace std;
 #define LOOKUP_OP 0
 #define INSERT_OP 1
 #define ERASE_OP 2
 
-void naiveCheck() {
-    TrieNode *root = new TrieNode();
-    vector<char *> strs = {"abcd", "efgh", "abdef"};
-    vector<char *> values = {"vals", "tree", "abcd"};
+// void naiveCheck() {
+//     BTreeNode *root = new BTreeNode();
+//     vector<char *> strs = {"abcd", "efgh", "abdef"};
+//     vector<char *> values = {"vals", "tree", "abcd"};
 
-    for (int i = 0; i < strs.size(); i++) {
-        int isOverwritten = root->insert(strs[i], strlen(strs[i]), values[i]);
-        printf("%d\n", isOverwritten);
-    }
+//     for (int i = 0; i < strs.size(); i++) {
+//         int isOverwritten = root->insert(strs[i], strlen(strs[i]),
+//         values[i]); printf("%d\n", isOverwritten);
+//     }
 
-    for (auto key : strs) {
-        char *value = nullptr;
-        root->lookup(key, strlen(key), value);
+//     for (auto key : strs) {
+//         char *value = nullptr;
+//         root->lookup(key, strlen(key), value);
 
-        if (value == nullptr) {
-            printf("Not found!\n");
-        } else {
-            printf("%s\n", value);
-        }
+//         if (value == nullptr) {
+//             printf("Not found!\n");
+//         } else {
+//             printf("%s\n", value);
+//         }
 
-        root->erase(key);
-        root->lookup(key, strlen(key), value);
+//         root->erase(key);
+//         root->lookup(key, strlen(key), value);
 
-        if (value == nullptr) {
-            printf("Not found!\n");
-        } else {
-            printf("%s\n", value);
-        }
-    }
-}
+//         if (value == nullptr) {
+//             printf("Not found!\n");
+//         } else {
+//             printf("%s\n", value);
+//         }
+//     }
+// }
 
 char *getCharPointer(const string &s) {
     char *valueChar = (char *)malloc(s.size() + 1), *org = valueChar;
@@ -169,6 +169,8 @@ void fileCheck() {
             default:
                 break;
         }
+
+        printf("Completed op %d\n", i);
     }
 }
 
