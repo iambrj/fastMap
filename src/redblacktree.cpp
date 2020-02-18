@@ -395,9 +395,26 @@ public:
   } 
   
 }; 
+
+class kvStore{
+public:
+  RBTree tree;
+  kvStore(uint64_t max_entries){ }
+  bool get(Slice &key, Slice &value){
+    return tree.get(key, value);
+  }
+  bool put(Slice &key, Slice &value){
+    return tree.put(key, value);
+  }
+  bool del(Slice &key){
+    return tree.del(key);
+  }
+  bool get(int N, Slice &key, Slice &value);
+  bool del(int N, Slice &key, Slice &value);
+};
   
 int main() { 
-  RBTree tree; 
+  kvStore K(1000);
   
   Slice arr[11] = {
     {1, "a"},
@@ -413,32 +430,18 @@ int main() {
     {4, "k"},
   };
 
-  tree.put(arr[0], arr[1]); 
-  tree.put(arr[1], arr[2]); 
-  tree.put(arr[2], arr[3]); 
-  tree.put(arr[10], arr[0]); 
-  tree.put(arr[7], arr[8]); 
-  cout << tree.search(arr[1])->data.data << endl;
+  K.put(arr[0], arr[1]); 
+  K.put(arr[1], arr[2]); 
+  K.put(arr[2], arr[3]); 
+  K.put(arr[10], arr[0]); 
+  K.put(arr[7], arr[8]); 
+  cout << K.tree.search(arr[1])->data.data << endl;
   cout << "hello" << endl;
-  /* tree.insert(8); */ 
-  /* tree.insert(11); */ 
-  /* tree.insert(26); */ 
-  /* tree.insert(2); */ 
-  /* tree.insert(6); */ 
-  /* tree.insert(13); */ 
   
-  tree.printInOrder(); 
+  K.tree.printInOrder(); 
 
-  tree.del(arr[10]);
+  K.tree.del(arr[10]);
   
-  cout<<endl<<"Deleting 18, 11, 3, 10, 22"<<endl; 
-  
-  /* tree.deleteBykey(18); */ 
-  /* tree.deleteBykey(11); */ 
-  /* tree.deleteBykey(3); */ 
-  /* tree.deleteBykey(10); */ 
-  /* tree.deleteBykey(22); */ 
-  
-  tree.printInOrder(); 
+  K.tree.printInOrder(); 
   return 0; 
 } 
