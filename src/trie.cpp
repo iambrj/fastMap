@@ -50,7 +50,7 @@ void setStringIntoSlice(string &s, Slice &slc) {
 
 void fileCheck() {
     //    map<string, string> naive;
-    const char *FILE_PATH = "../tests/smallInp.txt";
+    const char *FILE_PATH = "../tests/genInp.txt";
 
     ifstream file(FILE_PATH);
 
@@ -167,7 +167,12 @@ void fileCheck() {
                 }
 
                 if (found && strcmp(value.c_str(), y.data)) {
+                    cout << naive.size() << endl;
+
+                    cout << (*it).first << endl;
                     cout << value << endl;
+
+                    printf("%s\n", x.data);
                     printf("%s\n", y.data);
                     fail(1);
                 }

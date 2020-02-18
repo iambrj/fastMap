@@ -20,7 +20,6 @@ struct node {
     int size;
 };
 
-
 node NIL;
 node* NILPTR = &NIL;
 
@@ -43,13 +42,12 @@ int strComp(Slice* a, Slice* b) {
     }
 
     return a->size - b->size;
-
 }
 
 node* search(node* root, Slice* k) {
     if (root == NILPTR)
         return root;
-    
+
     int res = strComp(k, &(root->key));
 
     if (res == 0)
@@ -171,7 +169,8 @@ void rbinsert(node** treeroot, Slice* key, Slice* val) {
         else if (res > 0)
             x = x->right;
         else {
-            /* if the value to be inserted is already in the tree, undo the changes */
+            /* if the value to be inserted is already in the tree, undo the
+             * changes */
             /* Changes */
             node* temp = x;
             while (x != *treeroot) {
@@ -354,57 +353,59 @@ int cnt(node* treeroot, Slice* key) {
 }
 
 class kvStore {
-        node* tree;
-    public:
+    node* tree;
 
-        kvStore(uint64_t max_entries) {
-            NIL.left = NIL.right = NIL.p = NILPTR;
-            NIL.color = BLACK;
-            NIL.size = 0;
-            tree = NILPTR;
+   public:
+    kvStore(uint64_t max_entries) {
+        NIL.left = NIL.right = NIL.p = NILPTR;
+        NIL.color = BLACK;
+        NIL.size = 0;
+        tree = NILPTR;
+    }
+
+    bool get(Slice& key, Slice& value) {
+        node* temp = search(tree, &key);
+        if (temp == NILPTR) {
+            return false;
+        }
+        value.size = temp->val.size;
+        value.data = temp->val.data;
+        return true;
+    }
+    bool del(Slice& key) {
+        // searching because can't understand delete
+        // also free memory in delete
+        node* temp = search(tree, &key);
+        if (temp == NILPTR) {
+            return false;
+        }
+        rbdelete(&tree, &key);
+        return true;
+    }
+    bool put(Slice& key, Slice& value) {
+        bool res = del(key);
+        rbinsert(&tree, &key, &value);
+        return res;
+    }
+    bool get(int N, Slice& key, Slice& value) {
+        node* temp = kth(tree, N);
+        if (temp == NILPTR) {
+            return false;
+        }
+        key.size = temp->key.size;
+        key.data = temp->key.data;
+        value.size = temp->val.size;
+        value.data = temp->val.data;
+
+        return true;
+    }
+    bool del(int N) {
+        node* temp = kth(tree, N);
+        if (temp == NILPTR) {
+            return false;
         }
 
-        bool get(Slice& key, Slice& value) {
-            node* temp = search(tree, &key);
-            if (temp == NILPTR) {
-                return false;
-            }
-            value.size = temp->val.size;
-            value.data = temp->val.data;
-            return true;
-        }
-        bool del(Slice& key) {
-            // searching because can't understand delete
-            // also free memory in delete
-            node* temp = search(tree, &key);
-            if (temp == NILPTR) {
-                return false;
-            }
-            rbdelete(&tree, &key);
-            return true;
-        }
-        bool put(Slice& key, Slice& value) {
-            bool res = del(key);
-            rbinsert(&tree, &key, &value);
-            return res;
-        }
-        bool get(int N, Slice& key, Slice& value) {
-            node* temp = kth(tree, N);
-            if (temp == NILPTR) {
-                return false;
-            }
-            key.size = temp->key.size;
-            key.data = temp->key.data;
-            value.size = temp->val.size;
-            value.data = temp->val.data;
-            return true;
-        }
-        bool del(int N) {
-            node* temp = kth(tree, N);
-            if (temp == NILPTR) {
-                return false;
-            }
-            rbdelete(&tree, &(temp->key));
-            return true;
-        }
+        rbdelete(&tree, &(temp->key));
+        return true;
+    }
 };
