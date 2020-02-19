@@ -26,9 +26,9 @@ struct Node {
   Slice data;
   COLOR color; 
   Node *left, *right, *parent; 
-  int size;
-  
-  Node(Slice key, Slice data) : key(key), data(data) { 
+  /* int size; */
+
+  Node(){ 
     parent = left = right = NULL; 
     color = RED; 
   } 
@@ -91,8 +91,8 @@ class RBTree {
   
     nParent->left = x; 
 
-	nParent->size = x->size;
-	x->size = x->left->size + x->right->size +1;
+	/* nParent->size = x->size; */
+	/* x->size = x->left->size + x->right->size +1; */
   } 
   
   void rightRotate(Node *x) { 
@@ -112,8 +112,8 @@ class RBTree {
   
     nParent->right = x; 
 
-	nParent->size = x->size;
-	x->size = x->left->size + x->right->size + 1;
+	/* nParent->size = x->size; */
+	/* x->size = x->left->size + x->right->size + 1; */
   } 
   
   void swapColors(Node *x1, Node *x2) { 
@@ -128,6 +128,9 @@ class RBTree {
     temp = u->key; 
     u->key = v->key; 
     v->key = temp; 
+    temp = u->data;
+    u->data = v->data;
+    v->data = temp;
   } 
   
   void fixRedRed(Node *x) { 
@@ -192,15 +195,6 @@ class RBTree {
   
   void deleteNode(Node *v) { 
 
-    if(v != root){
-      Node *tmp = v->parent;
-      while(tmp != root){
-        tmp->size--;
-        tmp = tmp->parent;
-      }
-      root->size--;
-    }
-
     Node *u = BSTreplace(v); 
   
     bool uvBlack = ((u == NULL or u->color == BLACK) and (v->color == BLACK)); 
@@ -229,7 +223,10 @@ class RBTree {
   
     if (v->left == NULL or v->right == NULL) { 
       if (v == root) { 
-        v->key = u->key; 
+        v->key.size = u->key.size; 
+        strcpy(v->key.data, u->data.data);
+        v->data.size = u->data.size;
+        strcpy(v->data.data, u->data.data);
         v->left = v->right = NULL; 
         delete u; 
       } else { 
@@ -322,7 +319,7 @@ public:
     bool found = 0;
     Node *temp = root; 
     while (temp != NULL) { 
-      temp->size++;
+      /* temp->size++; */
       if (key < temp->key) { 
         if (temp->left == NULL) {
           found = 1;
@@ -345,10 +342,10 @@ public:
     
     if(found && temp->key == key){
       while (temp != root) {
-          temp->size--;
+          /* temp->size--; */
           temp = temp->parent;
       }
-      temp->size--;
+      /* temp->size--; */
     }
 
     return temp;
@@ -381,9 +378,39 @@ public:
     }
   }
 
+  int cnt = 0;
+  int get_to = 0;
+  Node *ans = NULL;
+
+  void inorder_get(Node *st){
+    if(st == NULL || ans != NULL){
+      return;
+    }
+    inorder_get(st->left);
+    cnt++;
+    if(cnt == get_to){
+      ans = st;
+      return;
+    }
+    inorder_get(st->right);
+  }
+
+  bool get(int N, Slice &A, Slice &B){
+    cnt = 0;
+    get_to = N;
+    ans = NULL;
+    inorder_get(root);
+    if(!ans) return false;
+    A = ans->key;
+    B = ans->data;
+    return true;
+  }
+
   bool put(Slice &A, Slice &B) { 
-    Node *newNode = new Node(A, B); 
-    newNode->size = 1;
+    Node *newNode = new Node; 
+    newNode->key = A;
+    newNode->data = B;
+    /* newNode->size = 1; */
     if (root == NULL) { 
       newNode->color = BLACK; 
       root = newNode; 
@@ -421,6 +448,16 @@ public:
     return true;
   }
 
+  bool del(int N){
+    cnt = 0;
+    get_to = N;
+    ans = NULL;
+    inorder_get(root);
+    if(!ans)return false;
+    deleteNode(ans);
+    return true;
+  }
+
   void printInOrder() { 
     cout << "Inorder: " << endl; 
     if (root == NULL) 
@@ -445,13 +482,22 @@ public:
   bool del(Slice &key){
     return tree.del(key);
   }
-  bool get(int N, Slice &key, Slice &value);
-  bool del(int N, Slice &key, Slice &value);
+  bool get(int N, Slice &key, Slice &value){
+    return tree.get(N, key, value);
+  }
+  bool del(int N){
+    return tree.del(N);
+  }
 };
   
 int main() { 
   kvStore K(1000);
   
+  Slice T, G, G1, G2;
+  T.size = 5;
+  T.data = (char *)malloc(5*sizeof(char));
+  strcpy(T.data, "hello");
+
   Slice arr[11] = {
     {1, "a"},
     {2, "b"},
@@ -467,12 +513,20 @@ int main() {
   };
 
   K.put(arr[0], arr[1]); 
-  K.put(arr[1], arr[2]); 
+  K.put(arr[1], T); 
   K.put(arr[2], arr[3]); 
   K.put(arr[10], arr[0]); 
   K.put(arr[7], arr[8]); 
   cout << K.tree.search(arr[1])->data.data << endl;
-  cout << "hello" << endl;
+  cout << "TESTT START******" << endl;
+  K.tree.del(5);
+  bool out = K.tree.get(arr[1], G);
+  out = K.tree.get(arr[1], G);
+  /* cout <<"get working --" << G.data << out << endl; */
+  /* bool out = K.tree.get(5, G1, G2); */
+  /* cout << out << G1.data << "**" << G2.data << endl; */
+
+  cout << "TESTTTT--------" << endl;
   
   K.tree.printInOrder(); 
 
