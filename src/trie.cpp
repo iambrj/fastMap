@@ -19,15 +19,15 @@ using namespace std;
 
 using namespace __gnu_pbds;
 
-template<class key, class value, class cmp = std::less<key>>
+template <class key, class value, class cmp = std::less<key>>
 using ordered_map =
-tree<key, value, cmp, rb_tree_tag, tree_order_statistics_node_update>;
+    tree<key, value, cmp, rb_tree_tag, tree_order_statistics_node_update>;
 
-ordered_map<string, string> naive;
-ordered_map<string, string>::iterator it;
+map<string, string> naive;
+map<string, string>::iterator it;
 
 char *getCharPointer(const string &s) {
-    char *valueChar = (char *) malloc(s.size() + 1), *org = valueChar;
+    char *valueChar = (char *)malloc(s.size() + 1), *org = valueChar;
     for (int i = 0; i < s.size(); i++) {
         *valueChar = s[i];
         valueChar++;
@@ -40,6 +40,16 @@ char *getCharPointer(const string &s) {
 void setStringIntoSlice(string &s, Slice &slc) {
     slc.data = getCharPointer(s);
     slc.size = s.size();
+}
+
+map<string, string>::iterator getNth(int n) {
+    auto it = naive.begin();
+
+    for (int i = 1; i < n; i++) {
+        it++;
+    }
+
+    return it;
 }
 
 #define fail(x)                                                        \
@@ -58,7 +68,7 @@ void fileCheck() {
     file >> opCount;
     std::cout << opCount << endl;
 
-    kvStore fastMap((uint64_t) opCount);
+    kvStore fastMap((uint64_t)opCount);
 
     for (int i = 1; i <= opCount; i++) {
         int op;
@@ -155,8 +165,7 @@ void fileCheck() {
                 if (nth > naive.size()) {
                     wasFound = false;
                 } else {
-                    // pbds is zero indexed
-                    it = naive.find_by_order(nth - 1);
+                    it = getNth(nth);
                     value = (*it).second;
                 }
 
@@ -184,8 +193,7 @@ void fileCheck() {
                 if (nth > naive.size()) {
                     wasFound = false;
                 } else {
-                    // pbds is zero indexed
-                    it = naive.find_by_order(nth - 1);
+                    it = getNth(nth);
                     naive.erase(it);
                 }
 

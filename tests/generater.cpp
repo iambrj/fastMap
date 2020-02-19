@@ -8,7 +8,7 @@
 #define ERASE_OP 2
 #define LOOKUPN_OP 3
 #define ERASEN_OP 4
-#define OP_COUNT 10000000
+#define OP_COUNT 50
 //#define MAX_OUT
 
 #include <vector>
@@ -23,8 +23,8 @@ using namespace std;
 vector<string> inserted;
 
 static const char alpha[] =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz";
 
 static int alpha_len = strlen(alpha);
 
