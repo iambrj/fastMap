@@ -7,10 +7,10 @@ struct Slice {
 };
 
 class kvStore {
-   private:
+private:
     TrieNode *root;
 
-   public:
+public:
     kvStore(uint64_t max_entries) {
         root = new TrieNode();
     }

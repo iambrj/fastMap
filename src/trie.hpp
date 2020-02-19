@@ -68,10 +68,14 @@ public:
 
     bool erase(char *s, int sLen) {
         if (sLen == 0) {
-            this->value = NULL;
-            this->numofEnds--;
+            if (this->value) {
+                this->value = NULL;
+                this->numofEnds--;
 
-            return true;
+                return true;
+            } else {
+                return false;
+            }
         }
 
         int idx = getIndex(*s);
@@ -94,8 +98,7 @@ public:
 
         while (N) {
             if (curr->value) {
-                -
-                        N--;
+                N--;
 
                 if (N == 0) {
                     *value = curr->value;
