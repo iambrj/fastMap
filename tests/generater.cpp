@@ -2,7 +2,7 @@
 #define MAX_KEY_LEN 64
 #define MAX_VALUE_LEN 256
 
-#define OP_TYPES 5
+#define OP_TYPES 4
 #define LOOKUP_OP 0
 #define INSERT_OP 1
 #define ERASE_OP 2

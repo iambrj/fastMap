@@ -5,7 +5,7 @@
 #include <string>
 #include <string.h>
 #include <vector>
-#include "rbtree.cpp"
+#include "fast_map.hpp"
 
 using namespace std;
 #define LOOKUP_OP 0
