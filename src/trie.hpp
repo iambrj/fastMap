@@ -9,57 +9,42 @@ public:
     char *value;
 
     int getIndex(char c) {
-        if ('a' <= c)
-            return c - 'a';
-        return (c - 'A') + (RANGE / 2);
+        if (c < 'a')
+            return c - 'A';
+        return (c - 'a') + (RANGE / 2);
     }
 
-    int getChar(int idx) {
+    char getChar(int idx) {
         if (RANGE / 2 <= idx)
-            return (char) ((idx - RANGE / 2) + 'A');
+            return (char) ((idx - RANGE / 2) + 'a');
 
-        return (char) (idx + 'a');
+        return (char) (idx + 'A');
     }
 
     TrieNode() {
         p = (TrieNode **) calloc(sizeof(TrieNode *), RANGE);
         value = nullptr;
+        numofEnds = 0;
     }
 
     bool insert(char *s, int sLen, char *value) {
-        TrieNode *currNode = this;
-        int i = 0;
-
-        while (i < sLen) {
-            int a = getIndex(s[i]);
-
-            if (!currNode->p[a])
-                currNode->p[a] = new TrieNode();
-
-            currNode = currNode->p[a];
-            i++;
-        }
-
-        int isOverwrite = true;
-        if (!currNode->value) {
-            isOverwrite = false;
-
-            *currNode = this;
-            i = 0;
-
-            while (i < sLen) {
-                currNode->numofEnds++;
-                int a = getIndex(s[i]);
-
-                if (!currNode->p[a])
-                    currNode->p[a] = new TrieNode();
-
-                currNode = currNode->p[a];
-                i++;
+        if (sLen == 0) {
+            bool isOverwrite = false;
+            if (this->value) {
+                isOverwrite = true;
+            } else {
+                this->numofEnds++;
             }
+            this->value = value;
+            return isOverwrite;
         }
 
-        currNode->value = value;
+        int idx = getIndex(*s);
+        if (!this->p[idx]) this->p[idx] = new TrieNode();
+        int isOverwrite = this->p[idx]->insert(s + 1, sLen - 1, value);
+        if (!isOverwrite) {
+            this->numofEnds++;
+        }
 
         return isOverwrite;
     }
@@ -82,25 +67,22 @@ public:
     }
 
     bool erase(char *s, int sLen) {
-        TrieNode *currNode = this;
-        TrieNode *prevNode = this;
-        int i = 0, a;
+        if (sLen == 0) {
+            this->value = NULL;
+            this->numofEnds--;
 
-        while (i < sLen) {
-            a = getIndex(s[i]);
-            prevNode = currNode;
-            if (!currNode->p[a]) {
-                return false;
-            }
-            currNode = currNode->p[a];
-            i++;
+            return true;
         }
 
-        currNode->numofEnds--;
+        int idx = getIndex(*s);
+        if (!this->p[idx]) return false;
 
-        if (currNode->numofEnds == 0)
-            prevNode->p[a] = NULL;
-        return true;
+        if (this->p[idx]->erase(s + 1, sLen - 1)) {
+            this->numofEnds--;
+            return true;
+        }
+
+        return false;
     }
 
     bool lookup(int N, char **key, char **value) {
@@ -112,7 +94,8 @@ public:
 
         while (N) {
             if (curr->value) {
-                N--;
+                -
+                        N--;
 
                 if (N == 0) {
                     *value = curr->value;
@@ -129,8 +112,8 @@ public:
                     } else {
                         curr = trans;
                         N -= cnt;
+                        cnt = 0;
 
-                        N -= cnt;
                         *keyp = getChar(i);
                         keyp++;
                         goto end;
