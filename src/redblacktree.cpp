@@ -9,15 +9,15 @@ struct Slice {
     char *data;
 };
 
-bool operator==(const Slice &a, const Slice &b) {
-    return b.size == a.size && strcmp(a.data, b.data) == 0;
+bool operator==(Slice &a, Slice &b) {
+    return (a.size == b.size && strcmp(a.data, b.data) == 0);
 }
 
-bool operator<(const Slice &a, const Slice &b) {
+bool operator<(Slice &a, Slice &b) {
     return strcmp(a.data, b.data) < 0;
 }
 
-bool operator>(const Slice &a, const Slice &b) {
+bool operator>(Slice &a, Slice &b) {
     return strcmp(a.data, b.data) > 0;
 }
 
@@ -358,6 +358,7 @@ class RBTree {
     // search for the required benchmark interface
     bool get(Slice &key, Slice &value) {
         Node *temp = root;
+        if(root == NULL) return false;
         while (temp != NULL) {
             if (key < temp->key) {
                 if (temp->left == NULL)
