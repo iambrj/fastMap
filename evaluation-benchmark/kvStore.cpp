@@ -1,31 +1,39 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+#include <stdint.h>
+
 using namespace std;
 
-class kvstore{
-public:
-	bool get(string key){
-		//Your Code Here
-		return false;
-	}
+struct Slice {
+    uint8_t size;
+    char* data;
+};
 
-	bool put(string key, string value){
-		//Your Code Here
-		return false;
-	}
+class kvStore {
+   public:
+    kvStore(uint64_t max_entries){};
 
-	bool del(string key){
-		//Your Code Here
-		return false;
-	}
+    bool get(Slice& key, Slice& value) {
+        // Your Code Here
+        return false;
+    }
 
-	pair<string,string> get(int N){
-		// Your Code Here
-		pair<string,string> temp = make_pair("key","value");
-		return temp;
-	}
+    bool put(Slice& key, Slice& value) {
+        // Your Code Here
+        return false;
+    }
 
-	bool del(int N){
-		// Your Code Here
-		return true;
-	}
+    bool del(Slice& key) {
+        // Your Code Here
+        return false;
+    }
+
+    bool get(int N, Slice& key, Slice& value) {
+        // Your Code Here
+        return false;
+    }
+
+    bool del(int N) {
+        // Your Code Here
+        return true;
+    }
 };

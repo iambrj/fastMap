@@ -1,6 +1,6 @@
-#define SEED 10  // no elements to be inserted at beginning
-#define MAX_KEY_LEN 64
-#define MAX_VALUE_LEN 256
+#define SEED 10           // no elements to be inserted at beginning
+#define MAX_KEY_LEN 10    // 64
+#define MAX_VALUE_LEN 10  // 256
 
 #define OP_TYPES 4
 #define LOOKUP_OP 0
