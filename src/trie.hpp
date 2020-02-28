@@ -28,6 +28,14 @@ class TrieNode {
         numofEnds = 0;
     }
 
+    ~TrieNode() {
+        for (int i = 0; i < RANGE; i++) {
+            delete p[i];
+        }
+
+        free(p);
+    }
+
     bool insert(char *s, int sLen, char *valueToInsert) {
         if (sLen == 0) {
             bool isOverwrite = false;

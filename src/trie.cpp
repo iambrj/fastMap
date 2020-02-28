@@ -42,7 +42,7 @@ map<string, string>::iterator getNth(int n) {
         iterator++;
 
     if (iterator == naive.end())
-        exit(1);
+        exit(3);
 
     for (int i = 1; i < n; i++) {
         iterator++;
@@ -51,7 +51,7 @@ map<string, string>::iterator getNth(int n) {
             iterator++;
 
         if (iterator == naive.end())
-            exit(1);
+            exit(3);
     }
 
     return iterator;
