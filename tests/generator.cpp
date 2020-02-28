@@ -12,23 +12,35 @@
 //#define MAX_OUT
 
 #include <vector>
+#include <iostream>
 #include <string>
 #include <cstdlib>
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <cassert>
+#include <set>
 
 using namespace std;
 
-vector<string> inserted;
-int size;
+set<string> inserted;
+#define contSize(x) (int)x.size()
 
 static const char alpha[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz";
 
 static int alpha_len = strlen(alpha);
+
+string getNth(int n) {
+    auto iterator = inserted.begin();
+
+    for (int i = 1; i < n; i++) {
+        iterator++;
+    }
+
+    return *iterator;
+}
 
 string alpha_rand(const int len) {
     string s;
@@ -43,7 +55,7 @@ string rand_string_wrapper(bool isValue = false) {
     int modder = isValue ? MAX_VALUE_LEN : MAX_KEY_LEN;
     int sizeString = rand() % modder + 1;
 #ifdef MAX_OUT
-    size = modder;
+    sizeString = modder;
 #endif
 
     string result = alpha_rand(sizeString);
@@ -51,9 +63,9 @@ string rand_string_wrapper(bool isValue = false) {
 #ifdef PREFIX_OVERLAP
     if (inserted.empty())
         return result;
-    int rand_idx = rand() % inserted.size();
-    string prefix = inserted[rand_idx].substr(
-        0, rand() % (rand() % inserted[rand_idx].length() + 1));
+    int rand_idx = rand() % sizeString;
+    int overlap = rand() % (rand() % inserted[rand_idx].length() + 1);
+    string prefix = inserted[rand_idx].substr(0, overlap);
     result = prefix + result;
 #endif
 
@@ -61,15 +73,21 @@ string rand_string_wrapper(bool isValue = false) {
 }
 
 void printNewKeyValue() {
-    string newKey = rand_string_wrapper();
-    inserted.push_back(newKey);
-    size++;
+    string newKey;
+
+    while (1) {
+        newKey = rand_string_wrapper();
+        if (inserted.find(newKey) == inserted.end()) {
+            inserted.insert(newKey);
+            break;
+        }
+    }
 
     printf("%s %s\n", newKey.c_str(), rand_string_wrapper(true).c_str());
 }
 
 int main() {
-    srand(time(0));
+    srand(42);  // time(0));
 
     int totalOps = SEED + OP_COUNT;
     printf("%d\n", totalOps);
@@ -79,16 +97,18 @@ int main() {
         printNewKeyValue();
     }
 
-    int rand_idx, op;
-    string newstring;
+    int rand_idx, op, nth;
+    string newstring, str;
 
-    for (int i = 0; i < OP_COUNT; i++) {
+    for (int i = 1; i <= OP_COUNT; i++) {
         op = rand() % OP_TYPES;
 
-        if (!size)
+        if (inserted.empty())
             op = INSERT_OP;
-        else
-            rand_idx = rand() % size;
+        else {
+            rand_idx = rand() % contSize(inserted);
+            nth = rand_idx + 1;
+        }
 
 #ifdef MAX_OUT
         op = INSERT_OP;
@@ -100,20 +120,20 @@ int main() {
                 printNewKeyValue();
                 break;
             case LOOKUP_OP:
-                printf("%s\n", inserted[rand_idx].c_str());
+                printf("%s\n", getNth(nth).c_str());
                 break;
             case ERASE_OP:
-                printf("%s\n", inserted[rand_idx].c_str());
-                size--;
-                inserted.erase(inserted.begin() + rand_idx);
+                str = getNth(nth);
+                printf("%s\n", str.c_str());
+                inserted.erase(str);
                 break;
             case LOOKUPN_OP:
-                printf("%d\n", rand_idx + 1);
+                printf("%d\n", nth);
                 break;
             case ERASEN_OP:
-                printf("%d\n", rand_idx + 1);
-                size--;
-                inserted.erase(inserted.begin() + rand_idx);
+                str = getNth(nth);
+                printf("%d\n", nth);
+                inserted.erase(str);
                 break;
             default:
                 assert(false);

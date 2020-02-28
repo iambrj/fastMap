@@ -35,14 +35,24 @@ void setStringIntoSlice(string &s, Slice &slc) {
     slc.size = (uint8_t)s.size();
 }
 
+void iteratorFail(int x, int y) {
+    cout << naive.size() << " " << y << endl;
+    for (auto it : naive) {
+        cout << it.first << " " << it.second << endl;
+    }
+    printf("Couldn't retrieve iterator - %d\n", x);
+    exit(3);
+}
+
 map<string, string>::iterator getNth(int n) {
     auto iterator = naive.begin();
 
     while (iterator != naive.end() && (*iterator).second.empty())
         iterator++;
 
-    if (iterator == naive.end())
-        exit(3);
+    if (iterator == naive.end()) {
+        iteratorFail(0, n);
+    }
 
     for (int i = 1; i < n; i++) {
         iterator++;
@@ -50,8 +60,9 @@ map<string, string>::iterator getNth(int n) {
         while (iterator != naive.end() && (*iterator).second.empty())
             iterator++;
 
-        if (iterator == naive.end())
-            exit(3);
+        if (iterator == naive.end()) {
+            iteratorFail(1, n);
+        }
     }
 
     return iterator;
