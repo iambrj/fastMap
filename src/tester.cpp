@@ -20,9 +20,9 @@ map<string, string> naive;
 map<string, string>::iterator it;
 
 char *getCharPointer(const string &s) {
-    char *valueChar = (char *)malloc(s.size() + 1), *org = valueChar;
-    for (int i = 0; i < contSize(s); i++) {
-        *valueChar = s[i];
+    char *valueChar = (char *) malloc(s.size() + 1), *org = valueChar;
+    for (auto ch : s) {
+        *valueChar = ch;
         valueChar++;
     }
     *valueChar = 0;
@@ -32,7 +32,7 @@ char *getCharPointer(const string &s) {
 
 void setStringIntoSlice(string &s, Slice &slc) {
     slc.data = getCharPointer(s);
-    slc.size = (uint8_t)s.size();
+    slc.size = s.size();
 }
 
 _GLIBCXX_NORETURN void iteratorFail(int x, int y) {
@@ -83,7 +83,7 @@ void fileCheck() {
     file >> opCount;
     std::cout << opCount << endl;
 
-    kvStore fastMap((uint64_t)opCount);
+    kvStore fastMap((uint64_t) opCount);
 
     for (int i = 1; i <= opCount; i++) {
         int op;
@@ -225,12 +225,22 @@ void fileCheck() {
                 break;
         }
 
-        if (x.data)
+        if (x.data) {
             free(x.data);
-        if (y.data)
+        }
+
+        if (y.data && y.data != x.data) {
             free(y.data);
-        if (z.data)
+        }
+
+        if (z.data && z.data != y.data && z.data != x.data) {
             free(z.data);
+        }
+
+        x.data = NULL;
+        y.data = NULL;
+        z.data = NULL;
+
         printf("Completed op %d\n", i);
     }
 }

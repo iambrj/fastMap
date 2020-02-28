@@ -4,7 +4,7 @@
 #define RANGE 52
 
 class TrieNode {
-   public:
+public:
     int numofEnds;  // num of values that ended at this node
     TrieNode **p;
     char *value;
@@ -17,15 +17,15 @@ class TrieNode {
 
     char getChar(int idx) {
         if (RANGE / 2 <= idx)
-            return (char)((idx - RANGE / 2) + 'a');
+            return (char) ((idx - RANGE / 2) + 'a');
 
-        return (char)(idx + 'A');
+        return (char) (idx + 'A');
     }
 
     TrieNode()
-        : numofEnds(0),
-          p((TrieNode **)calloc(sizeof(TrieNode *), RANGE)),
-          value(nullptr) {
+            : numofEnds(0),
+              p((TrieNode **) calloc(sizeof(TrieNode *), RANGE)),
+              value(nullptr) {
     }
 
     ~TrieNode() {
@@ -34,6 +34,7 @@ class TrieNode {
         }
 
         free(p);
+        p = NULL;
     }
 
     bool insert(char *s, int sLen, char *valueToInsert) {
@@ -51,7 +52,7 @@ class TrieNode {
         int idx = getIndex(*s);
         if (!this->p[idx])
             this->p[idx] = new TrieNode();
-        int isOverwrite = this->p[idx]->insert(s + 1, sLen - 1, valueToInsert);
+        bool isOverwrite = this->p[idx]->insert(s + 1, sLen - 1, valueToInsert);
         if (!isOverwrite) {
             this->numofEnds++;
         }
@@ -103,7 +104,7 @@ class TrieNode {
 
     bool lookup(int N, char **key, char **valuePointer) {
         int cnt = 0;
-        char *keyPointer = (char *)calloc(65, 1), *kOrg = keyPointer;
+        char *keyPointer = (char *) calloc(65, 1), *kOrg = keyPointer;
 
         TrieNode *curr = this;
 
@@ -135,7 +136,7 @@ class TrieNode {
                 }
             }
             return false;
-        end:;
+            end:;
         }
 
         *key = kOrg;
