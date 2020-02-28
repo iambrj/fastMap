@@ -5,6 +5,7 @@
 #include <string>
 #include <string.h>
 #include <vector>
+#include <cassert>
 #include "fast_map.hpp"
 
 using namespace std;
@@ -13,22 +14,14 @@ using namespace std;
 #define ERASE_OP 2
 #define LOOKUPN_OP 3
 #define ERASEN_OP 4
-
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-
-using namespace __gnu_pbds;
-
-template <class key, class value, class cmp = std::less<key>>
-using ordered_map =
-    tree<key, value, cmp, rb_tree_tag, tree_order_statistics_node_update>;
+#define contSize(x) (uint8_t) x.size()
 
 map<string, string> naive;
 map<string, string>::iterator it;
 
 char *getCharPointer(const string &s) {
     char *valueChar = (char *)malloc(s.size() + 1), *org = valueChar;
-    for (int i = 0; i < s.size(); i++) {
+    for (int i = 0; i < contSize(s); i++) {
         *valueChar = s[i];
         valueChar++;
     }
@@ -39,17 +32,29 @@ char *getCharPointer(const string &s) {
 
 void setStringIntoSlice(string &s, Slice &slc) {
     slc.data = getCharPointer(s);
-    slc.size = s.size();
+    slc.size = (uint8_t)s.size();
 }
 
 map<string, string>::iterator getNth(int n) {
-    auto it = naive.begin();
+    auto iterator = naive.begin();
+
+    while (iterator != naive.end() && (*iterator).second.empty())
+        iterator++;
+
+    if (iterator == naive.end())
+        exit(1);
 
     for (int i = 1; i < n; i++) {
-        it++;
+        iterator++;
+
+        while (iterator != naive.end() && (*iterator).second.empty())
+            iterator++;
+
+        if (iterator == naive.end())
+            exit(1);
     }
 
-    return it;
+    return iterator;
 }
 
 #define fail(x)                                                        \
@@ -59,7 +64,6 @@ map<string, string>::iterator getNth(int n) {
     }
 
 void fileCheck() {
-    //    map<string, string> naive;
     const char *FILE_PATH = "../tests/genInp.txt";
 
     ifstream file(FILE_PATH);
@@ -162,7 +166,7 @@ void fileCheck() {
             case LOOKUPN_OP:
                 file >> nth;
                 wasFound = true;
-                if (nth > naive.size()) {
+                if (nth > contSize(naive)) {
                     wasFound = false;
                 } else {
                     it = getNth(nth);
@@ -176,7 +180,7 @@ void fileCheck() {
                 }
 
                 if (found && strcmp(value.c_str(), y.data)) {
-                    cout << naive.size() << endl;
+                    cout << contSize(naive) << endl;
 
                     cout << (*it).first << endl;
                     cout << value << endl;
@@ -190,7 +194,7 @@ void fileCheck() {
             case ERASEN_OP:
                 file >> nth;
                 wasFound = true;
-                if (nth > naive.size()) {
+                if (nth > contSize(naive)) {
                     wasFound = false;
                 } else {
                     it = getNth(nth);
@@ -210,7 +214,7 @@ void fileCheck() {
                 break;
         }
 
-        //        printf("Completed op %d\n", i);
+        printf("Completed op %d\n", i);
     }
 }
 

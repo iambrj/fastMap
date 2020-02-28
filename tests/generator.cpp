@@ -17,14 +17,16 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <cassert>
 
 using namespace std;
 
 vector<string> inserted;
+int size;
 
 static const char alpha[] =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz";
 
 static int alpha_len = strlen(alpha);
 
@@ -38,12 +40,13 @@ string alpha_rand(const int len) {
 }
 
 string rand_string_wrapper(bool isValue = false) {
-    int size = rand() % MAX_KEY_LEN + 1;
+    int modder = isValue ? MAX_VALUE_LEN : MAX_KEY_LEN;
+    int sizeString = rand() % modder + 1;
 #ifdef MAX_OUT
-    size = isValue ? MAX_VALUE_LEN : MAX_KEY_LEN;
+    size = modder;
 #endif
 
-    string result = alpha_rand(size);
+    string result = alpha_rand(sizeString);
 
 #ifdef PREFIX_OVERLAP
     if (inserted.empty())
@@ -53,31 +56,39 @@ string rand_string_wrapper(bool isValue = false) {
         0, rand() % (rand() % inserted[rand_idx].length() + 1));
     result = prefix + result;
 #endif
+
     return result;
 }
 
+void printNewKeyValue() {
+    string newKey = rand_string_wrapper();
+    inserted.push_back(newKey);
+    size++;
+
+    printf("%s %s\n", newKey.c_str(), rand_string_wrapper(true).c_str());
+}
+
 int main() {
-    srand(time(NULL));
+    srand(time(0));
 
     int totalOps = SEED + OP_COUNT;
     printf("%d\n", totalOps);
 
     for (int i = 0; i < SEED; i++) {
         printf("%d ", INSERT_OP);
-        string newstring = rand_string_wrapper();
-        inserted.push_back(newstring);
-        printf("%s %s\n", newstring.c_str(), rand_string_wrapper().c_str());
+        printNewKeyValue();
     }
 
     int rand_idx, op;
+    string newstring;
+
     for (int i = 0; i < OP_COUNT; i++) {
         op = rand() % OP_TYPES;
-        string newstring = rand_string_wrapper();
 
-        if (!inserted.size())
+        if (!size)
             op = INSERT_OP;
         else
-            rand_idx = rand() % inserted.size();
+            rand_idx = rand() % size;
 
 #ifdef MAX_OUT
         op = INSERT_OP;
@@ -86,15 +97,14 @@ int main() {
         printf("%d ", op);
         switch (op) {
             case INSERT_OP:
-                inserted.push_back(newstring);
-                printf("%s %s\n", newstring.c_str(),
-                       rand_string_wrapper(true).c_str());
+                printNewKeyValue();
                 break;
             case LOOKUP_OP:
                 printf("%s\n", inserted[rand_idx].c_str());
                 break;
             case ERASE_OP:
                 printf("%s\n", inserted[rand_idx].c_str());
+                size--;
                 inserted.erase(inserted.begin() + rand_idx);
                 break;
             case LOOKUPN_OP:
@@ -102,7 +112,11 @@ int main() {
                 break;
             case ERASEN_OP:
                 printf("%d\n", rand_idx + 1);
+                size--;
                 inserted.erase(inserted.begin() + rand_idx);
+                break;
+            default:
+                assert(false);
                 break;
         }
     }

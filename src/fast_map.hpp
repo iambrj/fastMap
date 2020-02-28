@@ -1,5 +1,8 @@
+#include <cassert>
 #include "trie.hpp"
 #include <cstring>
+
+#define strsize(x) (uint8_t) strlen(x)
 
 struct Slice {
     uint8_t size;
@@ -7,10 +10,10 @@ struct Slice {
 };
 
 class kvStore {
-private:
+   private:
     TrieNode *root;
 
-public:
+   public:
     kvStore(uint64_t max_entries) {
         root = new TrieNode();
     }
@@ -25,7 +28,7 @@ public:
         if (!found)
             return false;
         value.data = found;
-        value.size = strlen(found);
+        value.size = strsize(found);
         return true;
     }
 
@@ -45,13 +48,14 @@ public:
         if (!found)
             return false;
 
-        key.size = strlen(key.data);
-        value.size = strlen(value.data);
+        key.size = strsize(key.data);
+        value.size = strsize(value.data);
         return true;
     }
 
     // delete Nth key-value pair
     bool del(int N) {
+        assert(false);
         return false;
     }
 };
