@@ -1,2 +1,5 @@
 .vscode/*
 a.out
+cmake-build-debug
+.idea
+*.txt

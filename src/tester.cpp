@@ -50,7 +50,6 @@ map<string, string>::iterator getNth(int n) {
     }
 
 void fileCheck() {
-    //    map<string, string> naive;
     const char *FILE_PATH = "../tests/genInp.txt";
 
     ifstream file(FILE_PATH);
