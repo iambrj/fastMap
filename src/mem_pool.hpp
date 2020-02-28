@@ -30,7 +30,16 @@ class mem_pool {
             return true;
         }
         void free_pool() {
-            return free(head);
+            if(!head) {
+                free(head);
+                head = NULL;
+                cur = NULL;
+                end = NULL;
+            }
+        }
+        ~mem_pool() {
+            if(!head)
+                free(head);
         }
 };
 
