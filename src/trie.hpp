@@ -22,10 +22,10 @@ class TrieNode {
         return (char)(idx + 'A');
     }
 
-    TrieNode() {
-        p = (TrieNode **)calloc(sizeof(TrieNode *), RANGE);
-        value = nullptr;
-        numofEnds = 0;
+    TrieNode()
+        : numofEnds(0),
+          p((TrieNode **)calloc(sizeof(TrieNode *), RANGE)),
+          value(nullptr) {
     }
 
     ~TrieNode() {

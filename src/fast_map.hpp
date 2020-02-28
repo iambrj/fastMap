@@ -14,8 +14,7 @@ class kvStore {
     TrieNode *root;
 
    public:
-    kvStore(uint64_t max_entries) {
-        root = new TrieNode();
+    kvStore(uint64_t max_entries) : root(new TrieNode()) {
     }
 
     ~kvStore() {

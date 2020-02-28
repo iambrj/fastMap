@@ -35,10 +35,10 @@ void setStringIntoSlice(string &s, Slice &slc) {
     slc.size = (uint8_t)s.size();
 }
 
-void iteratorFail(int x, int y) {
+_GLIBCXX_NORETURN void iteratorFail(int x, int y) {
     cout << naive.size() << " " << y << endl;
-    for (auto it : naive) {
-        cout << it.first << " " << it.second << endl;
+    for (auto iter : naive) {
+        cout << iter.first << " " << iter.second << endl;
     }
     printf("Couldn't retrieve iterator - %d\n", x);
     exit(3);

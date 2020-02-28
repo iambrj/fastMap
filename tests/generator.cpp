@@ -1,6 +1,6 @@
-#define SEED 10           // no elements to be inserted at beginning
-#define MAX_KEY_LEN 10    // 64
-#define MAX_VALUE_LEN 10  // 256
+#define SEED 10  // no elements to be inserted at beginning
+#define MAX_KEY_LEN 64
+#define MAX_VALUE_LEN 256
 
 #define OP_TYPES 4
 #define LOOKUP_OP 0
@@ -9,7 +9,7 @@
 #define LOOKUPN_OP 3
 #define ERASEN_OP 4
 #define OP_COUNT 50000
-//#define MAX_OUT
+#define MAX_OUT
 
 #include <vector>
 #include <iostream>
