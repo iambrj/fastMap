@@ -1,8 +1,7 @@
 #ifndef TRIE_HPP
 #define TRIE_HPP
 
-#include <vector>
-#include <assert.h>
+#include <cassert>
 #include <stdlib.h>
 
 using namespace std;
@@ -21,15 +20,22 @@ class TrieNode {
     char *value;   // value associated with the key ending at this trie node
     TrieNode **p;  // array of TrieNode pointers
 
-private:
+   private:
     int getIndex(char c) {
-        if ('a' <= c)
-            return (c - 'a');
-        return (c - 'A') + (RANGE / 2);
+        if (c < 'a')
+            return c - 'A';
+        return (c - 'a') + (RANGE / 2);
+    }
+
+    char getChar(int idx) {
+        if (RANGE / 2 <= idx)
+            return (char)((idx - RANGE / 2) + 'a');
+
+        return (char)(idx + 'A');
     }
 
     TrieNode **getNewTransitionsArray() {
-        return (TrieNode **) calloc(sizeof(TrieNode *) * RANGE, 1);
+        return (TrieNode **)calloc(sizeof(TrieNode *) * RANGE, 1);
     }
 
     // need not be a leaf node
@@ -66,7 +72,7 @@ private:
     void merge() {
     }
 
-public:
+   public:
     TrieNode() {
         p = getNewTransitionsArray();
         data = nullptr;
@@ -82,7 +88,11 @@ public:
     }
 
     ~TrieNode() {
-        free(this->p);
+        for (int i = 0; i < RANGE; i++) {
+            delete p[i];
+        }
+
+        free(p);
     }
 
     // finds the key in the trie, sets value and len accordingly
