@@ -26,6 +26,7 @@ class kvStore {
         char *found = root->lookup(key.data, key.size);
         if (!found)
             return false;
+        printf("%s\n", found);
         value.data = found;
         value.size = strsize(found);
         return true;

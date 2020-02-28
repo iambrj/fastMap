@@ -68,10 +68,10 @@ map<string, string>::iterator getNth(int n) {
     return iterator;
 }
 
-#define fail(x)                                                        \
-    {                                                                  \
-        printf("%d - Mismatch at operation %d optype %d\n", x, i, op); \
-        return;                                                        \
+#define fail(x)                                                              \
+    {                                                                        \
+        printf("Mismatch at operation %d, optype %d, index %d\n", i, op, x); \
+        return;                                                              \
     }
 
 void fileCheck() {
@@ -225,6 +225,12 @@ void fileCheck() {
                 break;
         }
 
+        if (x.data)
+            free(x.data);
+        if (y.data)
+            free(y.data);
+        if (z.data)
+            free(z.data);
         printf("Completed op %d\n", i);
     }
 }

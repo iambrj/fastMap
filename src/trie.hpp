@@ -79,6 +79,7 @@ class TrieNode {
     bool erase(char *s, int sLen) {
         if (sLen == 0) {
             if (this->value) {
+                free(this->value);
                 this->value = NULL;
                 this->numofEnds--;
 
