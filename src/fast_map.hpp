@@ -7,12 +7,11 @@ struct Slice {
 };
 
 class kvStore {
-private:
+   private:
     TrieNode *root;
 
-public:
-    kvStore(uint64_t max_entries) {
-        root = new TrieNode();
+   public:
+    kvStore(uint64_t max_entries) : root(new TrieNode()) {
     }
 
     ~kvStore() {
@@ -24,7 +23,7 @@ public:
         TrieNode *found = root->lookup(key.data, key.size, value.data);
         if (!found || !value.data)
             return false;
-        value.size = strlen(value.data);
+        value.size = (uint8_t)strlen(value.data);
         return true;
     }
 
@@ -43,8 +42,12 @@ public:
     }
 
     // returns Nth key-value pair
-    bool get(int N, Slice &key, Slice &value);
+    bool get(int N, Slice &key, Slice &value) {
+        return false;
+    }
 
     // delete Nth key-value pair
-    bool del(int N);
+    bool del(int N) {
+        return false;
+    }
 };

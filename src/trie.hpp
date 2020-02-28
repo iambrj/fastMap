@@ -73,18 +73,15 @@ class TrieNode {
     }
 
    public:
-    TrieNode() {
-        p = getNewTransitionsArray();
-        data = nullptr;
-        value = nullptr;
-        len = 0;
+    TrieNode()
+        : len(0), data(nullptr), value(nullptr), p(getNewTransitionsArray()) {
     }
 
-    TrieNode(char *str, int sLen, char *valueAssign) {
-        this->len = sLen;
-        p = getNewTransitionsArray();
-        data = str;
-        this->value = valueAssign;
+    TrieNode(char *str, int sLen, char *valueAssign)
+        : len(sLen),
+          data(str),
+          value(valueAssign),
+          p(getNewTransitionsArray()) {
     }
 
     ~TrieNode() {
@@ -98,7 +95,7 @@ class TrieNode {
     // finds the key in the trie, sets value and len accordingly
     // returns the trienode pointer in which the key was found, or nullptr
     // otherwise
-    TrieNode *lookup(char *key, int keyLen, char *&value) {
+    TrieNode *lookup(char *key, int keyLen, char *&valueToInsert) {
         TrieNode *curr = this;
         int currIndex = 0;
         char *dataStr = curr->data;
@@ -117,7 +114,7 @@ class TrieNode {
                     return nullptr;
                 }
 
-                value = curr->value;
+                valueToInsert = curr->value;
                 return curr;
             }
 
@@ -135,7 +132,7 @@ class TrieNode {
         }
 
         if (curr->len == 0)
-            value = curr->value;
+            valueToInsert = curr->value;
         else
             return nullptr;
         return curr;
@@ -182,7 +179,7 @@ class TrieNode {
     // but premature optimization is the root of all evil - Donald Knuth
     void erase(char *s) {
         char *val;
-        TrieNode *node = lookup(s, strlen(s), val);
+        TrieNode *node = lookup(s, (uint8_t)strlen(s), val);
 
         // Precondition: s exists in Trie before erasure
         assert(node && node->value != nullptr);

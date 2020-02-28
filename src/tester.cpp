@@ -190,6 +190,8 @@ void fileCheck() {
                     fail(1);
                 }
 
+                // TODO
+
                 break;
             case ERASEN_OP:
                 file >> nth;
