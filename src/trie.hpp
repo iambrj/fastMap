@@ -38,7 +38,7 @@ class TrieNode {
     }
 
     bool insert(char *s, int sLen, char *valueToInsert) {
-        if (sLen == 0) {
+        if (!sLen) {
             bool isOverwrite = false;
             if (this->value) {
                 isOverwrite = true;
@@ -78,7 +78,7 @@ class TrieNode {
     }
 
     bool erase(char *s, int sLen) {
-        if (sLen == 0) {
+        if (!sLen) {
             if (this->value) {
                 free(this->value);
                 this->value = nullptr;
@@ -112,7 +112,7 @@ class TrieNode {
             if (curr->value) {
                 N--;
 
-                if (N == 0) {
+                if (!N) {
                     *valuePointer = curr->value;
                     goto end;
                 }
@@ -154,7 +154,7 @@ class TrieNode {
             if (curr->value) {
                 N--;
 
-                if (N == 0) {
+                if (!N) {
                     goto end;
                 }
             }
@@ -188,7 +188,7 @@ class TrieNode {
             if (curr->value) {
                 N--;
 
-                if (N == 0) {
+                if (!N) {
                     curr->numofEnds--;
                     free(curr->value);
                     curr->value = nullptr;
