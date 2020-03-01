@@ -1,5 +1,5 @@
 #include <cassert>
-#include <stdlib.h>
+#include <cstdlib>
 
 #define RANGE 52
 
@@ -34,7 +34,7 @@ class TrieNode {
         }
 
         free(p);
-        p = NULL;
+        p = nullptr;
     }
 
     bool insert(char *s, int sLen, char *valueToInsert) {
@@ -81,7 +81,7 @@ class TrieNode {
         if (sLen == 0) {
             if (this->value) {
                 free(this->value);
-                this->value = NULL;
+                this->value = nullptr;
                 this->numofEnds--;
 
                 return true;
@@ -191,7 +191,7 @@ class TrieNode {
                 if (N == 0) {
                     curr->numofEnds--;
                     free(curr->value);
-                    curr->value = NULL;
+                    curr->value = nullptr;
                     goto end2;
                 }
             }
