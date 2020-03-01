@@ -1,6 +1,8 @@
 #include <cassert>
 #include <cstdlib>
 
+// Bithack to compute minimum branchlessly
+#define MIN(x, y) ((y) ^ (((x) ^ (y)) & -((x) < (y))))
 #define RANGE 52
 
 class TrieNode {
@@ -10,9 +12,7 @@ class TrieNode {
     char *value;
 
     int getIndex(char c) {
-        if (c < 'a')
-            return c - 'A';
-        return (c - 'a') + (RANGE / 2);
+        return c - MIN(MIN(c, 'a'), 'A') - (-(c > 'Z') & 6);
     }
 
     char getChar(int idx) {
