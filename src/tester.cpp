@@ -20,7 +20,7 @@ map<string, string> naive;
 map<string, string>::iterator it;
 
 char *getCharPointer(const string &s) {
-    char *valueChar = (char *) malloc(s.size() + 1), *org = valueChar;
+    char *valueChar = (char *)malloc(s.size() + 1), *org = valueChar;
     for (auto ch : s) {
         *valueChar = ch;
         valueChar++;
@@ -83,7 +83,7 @@ void fileCheck() {
     file >> opCount;
     std::cout << opCount << endl;
 
-    kvStore fastMap((uint64_t) opCount);
+    kvStore fastMap((uint64_t)opCount);
 
     for (int i = 1; i <= opCount; i++) {
         int op;
@@ -114,6 +114,11 @@ void fileCheck() {
                         fail(1);
                     }
                 }
+
+                // key was allocated new memory by trie.hpp
+                // need to free it since lookup successful
+                if (x.data)
+                    free(x.data);
 
                 break;
             case INSERT_OP:
@@ -149,6 +154,9 @@ void fileCheck() {
                     fail(2);
                 }
 
+                free(x.data);
+                // cannot free y, sicne it's a value being used by the trienode
+
                 break;
             case ERASE_OP:
                 file >> key;
@@ -173,10 +181,14 @@ void fileCheck() {
                     fail(1);
                 }
 
+                if (x.data)
+                    free(x.data);
+
                 break;
             case LOOKUPN_OP:
                 file >> nth;
                 wasFound = true;
+
                 if (nth > contSize(naive)) {
                     wasFound = false;
                 } else {
@@ -201,14 +213,19 @@ void fileCheck() {
                     fail(1);
                 }
 
+                if (x.data)
+                    free(x.data);
+
                 break;
             case ERASEN_OP:
                 file >> nth;
                 wasFound = true;
                 if (nth > contSize(naive)) {
                     wasFound = false;
+                    key = "";
                 } else {
                     it = getNth(nth);
+                    key = (*it).first;
                     naive.erase(it);
                 }
 
@@ -218,31 +235,32 @@ void fileCheck() {
                     fail(0);
                 }
 
-                // TODO not so nicely tested
+                if (!key.empty()) {
+                    setStringIntoSlice(key, x);
+
+                    found = fastMap.get(x, y);
+                    if (found) {
+                        fail(1);
+                    }
+
+                    free(x.data);
+                }
 
                 break;
             default:
                 break;
         }
 
-        if (x.data) {
-            free(x.data);
-        }
-
-        if (y.data && y.data != x.data) {
-            free(y.data);
-        }
-
-        if (z.data && z.data != y.data && z.data != x.data) {
-            free(z.data);
-        }
-
         x.data = NULL;
         y.data = NULL;
         z.data = NULL;
 
-        printf("Completed op %d\n", i);
+        //        printf("Completed op %d\n", i);
     }
+
+    // remove all unremoved values from map
+    while (fastMap.del(1))
+        ;
 }
 
 int main() {

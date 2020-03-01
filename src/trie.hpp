@@ -145,17 +145,16 @@ class TrieNode {
 
     bool erase(int N) {
         int cnt = 0;
-        char *keyPointer = (char *)calloc(65, 1), *kOrg = keyPointer;
 
         TrieNode *curr = this;
+        int Norg = N;
 
+        // first determine whether string is present or not
         while (N) {
             if (curr->value) {
                 N--;
 
                 if (N == 0) {
-                    free(curr->value);
-                    curr->value = NULL;
                     goto end;
                 }
             }
@@ -170,15 +169,52 @@ class TrieNode {
                         curr = trans;
                         N -= cnt;
                         cnt = 0;
-
-                        *keyPointer = getChar(i);
-                        keyPointer++;
                         goto end;
                     }
                 }
             }
+
             return false;
         end:;
+        }
+
+        // if string was found then deecrement num of ends
+        // and free the value
+        curr = this;
+        cnt = 0;
+        N = Norg;
+
+        while (N) {
+            if (curr->value) {
+                N--;
+
+                if (N == 0) {
+                    curr->numofEnds--;
+                    free(curr->value);
+                    curr->value = NULL;
+                    goto end2;
+                }
+            }
+
+            for (int i = 0; i < RANGE; i++) {
+                TrieNode *trans = curr->p[i];
+
+                if (trans) {
+                    if (cnt + trans->numofEnds < N) {
+                        cnt += trans->numofEnds;
+                    } else {
+                        curr->numofEnds--;
+                        curr = trans;
+                        N -= cnt;
+                        cnt = 0;
+
+                        goto end2;
+                    }
+                }
+            }
+
+            return false;
+        end2:;
         }
 
         return true;

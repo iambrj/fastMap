@@ -26,7 +26,6 @@ class kvStore {
         char *found = root->lookup(key.data, key.size);
         if (!found)
             return false;
-        printf("%s\n", found);
         value.data = found;
         value.size = strsize(found);
         return true;
@@ -55,7 +54,6 @@ class kvStore {
 
     // delete Nth key-value pair
     bool del(int N) {
-        assert(false);
-        return false;
+        return root->erase(N);
     }
 };
