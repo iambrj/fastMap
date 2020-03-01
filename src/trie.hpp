@@ -40,11 +40,8 @@ class TrieNode {
     bool insert(char *s, int sLen, char *valueToInsert) {
         if (!sLen) {
             bool isOverwrite = false;
-            if (this->value) {
-                isOverwrite = true;
-            } else {
-                this->numofEnds++;
-            }
+            isOverwrite = this->value;
+            this->numofEnds += !this->value;
             this->value = valueToInsert;
             return isOverwrite;
         }
@@ -53,9 +50,7 @@ class TrieNode {
         if (!this->p[idx])
             this->p[idx] = new TrieNode();
         bool isOverwrite = this->p[idx]->insert(s + 1, sLen - 1, valueToInsert);
-        if (!isOverwrite) {
-            this->numofEnds++;
-        }
+        this->numofEnds += !isOverwrite;
 
         return isOverwrite;
     }
