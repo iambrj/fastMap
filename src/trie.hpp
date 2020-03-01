@@ -4,7 +4,7 @@
 #define RANGE 52
 
 class TrieNode {
-public:
+   public:
     int numofEnds;  // num of values that ended at this node
     TrieNode **p;
     char *value;
@@ -17,15 +17,15 @@ public:
 
     char getChar(int idx) {
         if (RANGE / 2 <= idx)
-            return (char) ((idx - RANGE / 2) + 'a');
+            return (char)((idx - RANGE / 2) + 'a');
 
-        return (char) (idx + 'A');
+        return (char)(idx + 'A');
     }
 
     TrieNode()
-            : numofEnds(0),
-              p((TrieNode **) calloc(sizeof(TrieNode *), RANGE)),
-              value(nullptr) {
+        : numofEnds(0),
+          p((TrieNode **)calloc(sizeof(TrieNode *), RANGE)),
+          value(nullptr) {
     }
 
     ~TrieNode() {
@@ -104,7 +104,7 @@ public:
 
     bool lookup(int N, char **key, char **valuePointer) {
         int cnt = 0;
-        char *keyPointer = (char *) calloc(65, 1), *kOrg = keyPointer;
+        char *keyPointer = (char *)calloc(65, 1), *kOrg = keyPointer;
 
         TrieNode *curr = this;
 
@@ -136,7 +136,7 @@ public:
                 }
             }
             return false;
-            end:;
+        end:;
         }
 
         *key = kOrg;
@@ -144,8 +144,43 @@ public:
     }
 
     bool erase(int N) {
-        assert(false);
+        int cnt = 0;
+        char *keyPointer = (char *)calloc(65, 1), *kOrg = keyPointer;
 
-        return false;
+        TrieNode *curr = this;
+
+        while (N) {
+            if (curr->value) {
+                N--;
+
+                if (N == 0) {
+                    free(curr->value);
+                    curr->value = NULL;
+                    goto end;
+                }
+            }
+
+            for (int i = 0; i < RANGE; i++) {
+                TrieNode *trans = curr->p[i];
+
+                if (trans) {
+                    if (cnt + trans->numofEnds < N) {
+                        cnt += trans->numofEnds;
+                    } else {
+                        curr = trans;
+                        N -= cnt;
+                        cnt = 0;
+
+                        *keyPointer = getChar(i);
+                        keyPointer++;
+                        goto end;
+                    }
+                }
+            }
+            return false;
+        end:;
+        }
+
+        return true;
     }
 };

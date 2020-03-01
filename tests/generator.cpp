@@ -2,14 +2,15 @@
 #define MAX_KEY_LEN 64
 #define MAX_VALUE_LEN 256
 
-#define OP_TYPES 4
+#define OP_TYPES 5
 #define LOOKUP_OP 0
 #define INSERT_OP 1
 #define ERASE_OP 2
 #define LOOKUPN_OP 3
 #define ERASEN_OP 4
-#define OP_COUNT 50000
-#define MAX_OUT
+#define OP_COUNT 1000000
+// #define MAX_OUT
+#define PREFIX_OVERLAP
 
 #include <vector>
 #include <iostream>
@@ -63,10 +64,12 @@ string rand_string_wrapper(bool isValue = false) {
 #ifdef PREFIX_OVERLAP
     if (inserted.empty())
         return result;
-    int rand_idx = rand() % sizeString;
-    int overlap = rand() % (rand() % inserted[rand_idx].length() + 1);
-    string prefix = inserted[rand_idx].substr(0, overlap);
-    result = prefix + result;
+    int randNth = rand() % contSize(inserted) + 1;
+    string nth = getNth(randNth);
+    int overlap = rand() % contSize(nth);
+    string prefix = nth.substr(0, overlap);
+    result = prefix.substr(0, sizeString) +
+             result.substr(0, max(0, sizeString - overlap));
 #endif
 
     return result;
