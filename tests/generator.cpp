@@ -8,8 +8,8 @@
 #define ERASE_OP 2
 #define LOOKUPN_OP 3
 #define ERASEN_OP 4
-#define OP_COUNT 1000000
-// #define MAX_OUT
+#define OP_COUNT (int)1e6
+#define MAX_OUT
 #define PREFIX_OVERLAP
 
 #include <vector>

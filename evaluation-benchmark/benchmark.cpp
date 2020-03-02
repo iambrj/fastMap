@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <time.h>
 #include "kvStore.cpp"
+
 using namespace std;
 
 string sliceToStr(Slice &a) {
@@ -16,7 +17,7 @@ string sliceToStr(Slice &a) {
 
 void strToSlice(string l, Slice &a) {
     a.size = l.length();
-    a.data = (char *)malloc(a.size);
+    a.data = (char *) malloc(a.size);
     strncpy(a.data, l.c_str(), a.size);
 }
 
@@ -50,66 +51,69 @@ kvStore kv(10000000);
 map<string, string> db;
 long long db_size = 0;
 
-void *myThreadFun(void *vargp) {
-    return nullptr;  // TODO
-    int transactions = 0;
-    clock_t start = clock();
-    int time = 10;
-    clock_t tt = clock();
-    while ((float(tt - start) / CLOCKS_PER_SECOND) <= time) {
-        for (int i = 0; i < 10000; i++) {
-            transactions += 1;
-            int x = rand() % 5;
-            if (x == 0) {
-                string key = random_key(rand() % 64 + 1);
-                Slice s_key, s_value;
-                strToSlice(key, s_key);
-                bool ans = kv.get(s_key, s_value);
-            } else if (x == 1) {
-                string key = random_key(rand() % 64 + 1);
-                string value = random_value(rand() % 255 + 1);
-                Slice s_key, s_value, temp;
-                strToSlice(key, s_key);
-                strToSlice(value, s_value);
-
-                bool check = kv.get(s_key, temp);
-                bool ans = kv.put(s_key, s_value);
-
-                if (check == false)
-                    db_size++;
-            } else if (x == 2) {
-                int temp = db_size;
-                if (temp == 0)
-                    continue;
-                int rem = rand() % temp;
-                Slice s_key, s_value;
-                bool check = kv.get(rem, s_key, s_value);
-                check = kv.del(s_key);
-                db_size--;
-            } else if (x == 3) {
-                int temp = db_size;
-                if (temp == 0)
-                    continue;
-                int rem = rand() % temp;
-                Slice s_key, s_value;
-                bool check = kv.get(rem, s_key, s_value);
-            } else if (x == 4) {
-                int temp = db_size;
-                if (temp == 0)
-                    continue;
-                int rem = rand() % temp;
-                bool check = kv.del(rem);
-                db_size--;
-            }
-        }
-        tt = clock();
-    }
-    cout << transactions / time << endl;
-    return NULL;
-}
+//void *myThreadFun(void *vargp) {
+//    return nullptr;  // TODO
+//    int transactions = 0;
+//    clock_t start = clock();
+//    int time = 10;
+//    clock_t tt = clock();
+//    while ((float(tt - start) / CLOCKS_PER_SECOND) <= time) {
+//        for (int i = 0; i < 10000; i++) {
+//            transactions += 1;
+//            int x = rand() % 5;
+//            if (x == 0) {
+//                string key = random_key(rand() % 64 + 1);
+//                Slice s_key, s_value;
+//                strToSlice(key, s_key);
+//                bool ans = kv.get(s_key, s_value);
+//            } else if (x == 1) {
+//                string key = random_key(rand() % 64 + 1);
+//                string value = random_value(rand() % 255 + 1);
+//                Slice s_key, s_value, temp;
+//                strToSlice(key, s_key);
+//                strToSlice(value, s_value);
+//
+//                bool check = kv.get(s_key, temp);
+//                bool ans = kv.put(s_key, s_value);
+//
+//                if (check == false)
+//                    db_size++;
+//            } else if (x == 2) {
+//                int temp = db_size;
+//                if (temp == 0)
+//                    continue;
+//                int rem = rand() % temp;
+//                Slice s_key, s_value;
+//                bool check = kv.get(rem, s_key, s_value);
+//                check = kv.del(s_key);
+//                db_size--;
+//            } else if (x == 3) {
+//                int temp = db_size;
+//                if (temp == 0)
+//                    continue;
+//                int rem = rand() % temp;
+//                Slice s_key, s_value;
+//                bool check = kv.get(rem, s_key, s_value);
+//            } else if (x == 4) {
+//                int temp = db_size;
+//                if (temp == 0)
+//                    continue;
+//                int rem = rand() % temp;
+//                bool check = kv.del(rem);
+//                db_size--;
+//            }
+//        }
+//        tt = clock();
+//    }
+//    cout << transactions / time << endl;
+//    return NULL;
+//}
 
 int main() {
-    for (int i = 0; i < 100000; i++) {
+    srand(0);
+
+    int SEED = 10;
+    for (int i = 0; i < SEED; i++) {
         string key = random_key(rand() % 64 + 1);
         string value = random_value(rand() % 255 + 1);
         db[key] = value;
@@ -124,8 +128,7 @@ int main() {
 
     for (int i = 0; i < 10000; i++) {
         int x = rand() % 5;
-        if (x == 4)
-            x = 3;
+
         if (x == 0) {
             string key = random_key(rand() % 64 + 1);
             Slice s_key, s_value;
@@ -190,19 +193,20 @@ int main() {
             if (check2 == true)
                 incorrect = true;
         }
-    }
-    if (incorrect == true) {
-        cout << 0 << endl;
-        return 0;
-    }
-    int threads = 4;
 
-    vector<pthread_t> tid(threads);
-    for (int i = 0; i < threads; i++) {
-        tid[i] = i;
-        pthread_create(&tid[i], NULL, myThreadFun, (void *)&tid[i]);
+        if (incorrect == true) {
+            cout << i << " " << x << endl;
+            return 0;
+        }
     }
-    for (int i = 0; i < threads; i++)
-        pthread_join(tid[i], NULL);
+//    int threads = 4;
+//
+//    vector<pthread_t> tid(threads);
+//    for (int i = 0; i < threads; i++) {
+//        tid[i] = i;
+//        pthread_create(&tid[i], NULL, myThreadFun, (void *)&tid[i]);
+//    }
+//    for (int i = 0; i < threads; i++)
+//        pthread_join(tid[i], NULL);
     return 0;
 }

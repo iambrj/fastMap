@@ -3,28 +3,35 @@
 
 #define RANGE 52
 
+int min(int a, int b) {
+    return a < b ? a : b;
+}
+
 class TrieNode {
-   public:
+public:
     int numofEnds;  // num of values that ended at this node
     TrieNode **p;
     char *value;
     int valueLen;
 
     int getIndex(char c) {
-        return c - min(min(c, 'a'), 'A') - (-(c > 'Z') & 6);
+        if (c < 'a')
+            return c - 'A';
+        return (c - 'a') + (RANGE / 2);
+
     }
 
     char getChar(int idx) {
         if (RANGE / 2 <= idx)
-            return (char)((idx - RANGE / 2) + 'a');
+            return (char) ((idx - RANGE / 2) + 'a');
 
-        return (char)(idx + 'A');
+        return (char) (idx + 'A');
     }
 
     TrieNode()
-        : numofEnds(0),
-          p((TrieNode **)calloc(sizeof(TrieNode *), RANGE)),
-          value(nullptr) {
+            : numofEnds(0),
+              p((TrieNode **) calloc(sizeof(TrieNode *), RANGE)),
+              value(nullptr) {
     }
 
     ~TrieNode() {
@@ -50,7 +57,7 @@ class TrieNode {
         if (!this->p[idx])
             this->p[idx] = new TrieNode();
         bool isOverwrite =
-            this->p[idx]->insert(s + 1, sLen - 1, valueToInsert, valueLen);
+                this->p[idx]->insert(s + 1, sLen - 1, valueToInsert, valueLen);
         this->numofEnds += !isOverwrite;
 
         return isOverwrite;
@@ -102,7 +109,7 @@ class TrieNode {
     bool lookupN(int N, char **key, char **valuePointer, int &ksize,
                  int &vsize) {
         int cnt = 0;
-        char *keyPointer = (char *)calloc(65, 1), *kOrg = keyPointer;
+        char *keyPointer = (char *) calloc(65, 1), *kOrg = keyPointer;
 
         TrieNode *curr = this;
 
@@ -136,7 +143,7 @@ class TrieNode {
                 }
             }
             return false;
-        end:;
+            end:;
         }
 
         *key = kOrg;
@@ -175,7 +182,7 @@ class TrieNode {
             }
 
             return false;
-        end:;
+            end:;
         }
 
         // if string was found then deecrement num of ends
@@ -214,7 +221,7 @@ class TrieNode {
             }
 
             return false;
-        end2:;
+            end2:;
         }
 
         return true;

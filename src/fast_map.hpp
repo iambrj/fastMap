@@ -2,10 +2,10 @@
 #include "trie.hpp"
 #include <cstring>
 
-#define strsize(x) (uint8_t) strlen(x)
+#define strsize(x) (int) strlen(x)
 
 struct Slice {
-    uint8_t size;
+    int size;
     char *data;
 };
 

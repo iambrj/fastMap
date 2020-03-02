@@ -14,7 +14,7 @@ using namespace std;
 #define ERASE_OP 2
 #define LOOKUPN_OP 3
 #define ERASEN_OP 4
-#define contSize(x) (uint8_t) x.size()
+#define contSize(x) (int) x.size()
 
 map<string, string> naive;
 map<string, string>::iterator it;
