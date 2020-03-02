@@ -1,15 +1,19 @@
 #include <cassert>
 #include <cstdlib>
+#include <semaphore.h>
 
 // Bithack to compute minimum branchlessly
 #define MIN(x, y) ((y) ^ (((x) ^ (y)) & -((x) < (y))))
 #define RANGE 52
+
+int readercount = 0;
 
 class TrieNode {
    public:
     int numofEnds;  // num of values that ended at this node
     TrieNode **p;
     char *value;
+    sem_t reader_sem, writer_sem;
 
     int getIndex(char c) {
         return c - MIN(MIN(c, 'a'), 'A') - (-(c > 'Z') & 6);
@@ -26,6 +30,8 @@ class TrieNode {
         : numofEnds(0),
           p((TrieNode **)calloc(sizeof(TrieNode *), RANGE)),
           value(nullptr) {
+            sem_init(&reader_sem, 0, 1);
+            sem_init(&writer_sem, 0, 1);
     }
 
     ~TrieNode() {
@@ -40,17 +46,30 @@ class TrieNode {
     bool insert(char *s, int sLen, char *valueToInsert) {
         if (!sLen) {
             bool isOverwrite = false;
+            sem_wait(&reader_sem);
+            readercount++;
+            if(readercount==1) sem_wait(&writer_sem);
+            sem_post(&reader_sem);
             isOverwrite = this->value;
+            sem_wait(&reader_sem);
+            readercount--;
+            if(readercount==0) sem_post(&writer_sem);
+            sem_post(&reader_sem);
+
+            sem_wait(&writer_sem);
             this->numofEnds += !this->value;
             this->value = valueToInsert;
+            sem_post(&writer_sem);
             return isOverwrite;
         }
 
         int idx = getIndex(*s);
+        sem_wait(&writer_sem);
         if (!this->p[idx])
             this->p[idx] = new TrieNode();
         bool isOverwrite = this->p[idx]->insert(s + 1, sLen - 1, valueToInsert);
         this->numofEnds += !isOverwrite;
+        sem_post(&writer_sem);
 
         return isOverwrite;
     }
@@ -62,38 +81,70 @@ class TrieNode {
         while (i < sLen) {
             int a = getIndex(s[i]);
 
-            if (!currNode->p[a])
+            sem_wait(&reader_sem);
+            readercount++;
+            if(readercount == 1) sem_wait(&writer_sem);
+            sem_post(&reader_sem);
+            if (!currNode->p[a]) {
+                sem_wait(&reader_sem);
+                readercount--;
+                if(readercount == 0) sem_post(&writer_sem);
+                sem_post(&reader_sem);
                 return nullptr;
+            }
 
             currNode = currNode->p[a];
             i++;
         }
 
+        sem_wait(&reader_sem);
+        readercount--;
+        if(readercount == 0) sem_post(&writer_sem);
+        sem_post(&reader_sem);
         return currNode->value;
     }
 
     bool erase(char *s, int sLen) {
         if (!sLen) {
+            sem_wait(&writer_sem);
             if (this->value) {
                 free(this->value);
                 this->value = nullptr;
                 this->numofEnds--;
 
+                sem_post(&writer_sem);
                 return true;
             } else {
+                sem_post(&writer_sem);
                 return false;
             }
         }
 
         int idx = getIndex(*s);
-        if (!this->p[idx])
+        sem_wait(&reader_sem);
+        readercount++;
+        if(readercount==1) sem_wait(&writer_sem);
+        sem_post(&reader_sem);
+        if (!this->p[idx]) {
+            sem_wait(&reader_sem);
+            readercount--;
+            if(readercount==0) sem_post(&writer_sem);
+            sem_post(&reader_sem);
             return false;
+        }
+        sem_wait(&reader_sem);
+        readercount--;
+        if(readercount==0) sem_post(&writer_sem);
+        sem_post(&reader_sem);
 
+        sem_wait(&writer_sem);
         if (this->p[idx]->erase(s + 1, sLen - 1)) {
             this->numofEnds--;
+            sem_post(&writer_sem);
             return true;
         }
 
+        sem_post(&writer_sem);
         return false;
     }
 
@@ -131,7 +182,7 @@ class TrieNode {
                 }
             }
             return false;
-        end:;
+end:;
         }
 
         *key = kOrg;
@@ -170,7 +221,7 @@ class TrieNode {
             }
 
             return false;
-        end:;
+end:;
         }
 
         // if string was found then deecrement num of ends
@@ -209,7 +260,7 @@ class TrieNode {
             }
 
             return false;
-        end2:;
+end2:;
         }
 
         return true;
