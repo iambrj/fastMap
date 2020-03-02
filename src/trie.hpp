@@ -281,9 +281,11 @@ BSTNode::BSTNode(char c)
 }
 
 BSTNode::~BSTNode() {
+    delete this->data;
     delete this->left;
     delete this->right;
 
+    this->data = nullptr;
     this->left = nullptr;
     this->right = nullptr;
     // this node will automatically be deleted
@@ -338,6 +340,7 @@ BST::BST() : root(nullptr) {
 
 BST::~BST() {
     delete this->root;
+    this->root = nullptr;
 }
 
 TrieNode* BST::getOrInsert(char c) {
