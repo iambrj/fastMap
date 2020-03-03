@@ -1,2 +1,6 @@
 .vscode/*
+.idea/*
+.idea
+cmake-*
+.ycm*
 a.out
