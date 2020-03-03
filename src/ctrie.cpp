@@ -333,53 +333,6 @@ bool CompressedTrie::del(const Slice& key) {
     return ispresent;
 }
 
-
-/*
-bool CompressedTrie::startsWith(const string &word) const {
-    size_t i=0, j=0;
-    string word_to_match;
-    if(word == "") return false;
-    if(root->children.find(word[0]) == root->children.end()) {
-        return false;
-    }
-    bool ispresent = false;
-    CompressedTrieNode* curr_node = root->children[word[0]].get();
-    while (i < word.length()) {
-        j=0;
-        word_to_match = curr_node->edgelabel;
-        while(i < word.length() && j < word_to_match.length() && word[i] == word_to_match[j]) {
-            i++;
-            j++;
-        }
-        // completed matching
-        if( i == word.length()) {
-            ispresent = true;
-        }
-        // Case 2 : match remaining
-        else {
-            // Case 2a: j completed
-            if( j == word_to_match.length()) {
-                // Case 2aa: nowhere to go
-                if(curr_node->children.find(word[i]) == curr_node->children.end()) {
-                    ispresent = false;
-                    break;
-                }
-                else {
-                    // case 2ab : continue matching
-                    curr_node = curr_node->children[word[i]].get();
-                }
-            }
-            // case 2b : j remaining, no match
-            else {
-                ispresent = false;
-                break;
-            }
-        }
-    }
-    return ispresent;
-}
-*/
-
 int main() {
     CompressedTrie T;
     Slice A, B, C, D, E;

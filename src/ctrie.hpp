@@ -1,11 +1,3 @@
-//
-//  trie.hpp
-//  data_structures
-//
-//  Created by Shashank Gupta on 31/10/19.
-//  Copyright © 2019 Shashank Gupta. All rights reserved.
-//
-
 #ifndef trie_h
 #define trie_h
 
