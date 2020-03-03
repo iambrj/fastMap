@@ -5,6 +5,7 @@
 #include "kvStore.cpp"
 
 using namespace std;
+#define TIME_INSERTS
 
 string sliceToStr(Slice &a) {
     string ret = "";
@@ -17,7 +18,7 @@ string sliceToStr(Slice &a) {
 
 void strToSlice(string l, Slice &a) {
     a.size = l.length();
-    a.data = (char *) malloc(a.size);
+    a.data = (char *)malloc(a.size);
     strncpy(a.data, l.c_str(), a.size);
 }
 
@@ -38,8 +39,8 @@ string random_value(int stringLength) {
     string v = "";
     string letters = "";
     int low = 'a', upper = 'z', len = upper - low + 1;
-//    for (int i = 32; i <= 127; i++)
-//        letters += char(i);
+    //    for (int i = 32; i <= 127; i++)
+    //        letters += char(i);
     // TODO: use above
     for (int i = 'a'; i <= 'z'; i++)
         letters += char(i);
@@ -55,7 +56,7 @@ kvStore kv(10000000);
 map<string, string> db;
 long long db_size = 0;
 
-//void *myThreadFun(void *vargp) {
+// void *myThreadFun(void *vargp) {
 //    return nullptr;  // TODO
 //    int transactions = 0;
 //    clock_t start = clock();
@@ -113,10 +114,20 @@ long long db_size = 0;
 //    return NULL;
 //}
 
+inline double timer(struct timespec &t) {
+    return t.tv_nsec / 1e9 + t.tv_sec;
+}
+
 int main() {
     srand(0);
 
-    int SEED = 10000;
+#ifdef TIME_INSERTS
+    struct timespec st, en;
+    double totalTime = 0;
+#endif
+
+    int SEED = 1e6;
+    double sst, een;
     for (int i = 0; i < SEED; i++) {
         string key = random_key(rand() % 64 + 1);
         string value = random_value(rand() % 255 + 1);
@@ -124,14 +135,28 @@ int main() {
         Slice k, v;
         strToSlice(key, k);
         strToSlice(value, v);
-        cout << key << endl << value << endl;
+#ifdef TIME_INSERTS
+        clock_gettime(CLOCK_MONOTONIC_RAW, &st);
+#endif
         kv.put(k, v);
+#ifdef TIME_INSERTS
+        clock_gettime(CLOCK_MONOTONIC_RAW, &en);
+        sst = timer(st);
+        een = timer(en);
+        totalTime += een - sst;
+#endif
         db_size = db.size();
     }
+#ifdef TIME_INSERTS
+    clock_gettime(CLOCK_MONOTONIC_RAW, &en);
+
+    printf("%.8lf", totalTime);
+    return 0;
+#endif
 
     bool incorrect = false;
 
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 1e5; i++) {
         int x = rand() % 5;
 
         if (x == 0) {
@@ -204,14 +229,14 @@ int main() {
             return 0;
         }
     }
-//    int threads = 4;
-//
-//    vector<pthread_t> tid(threads);
-//    for (int i = 0; i < threads; i++) {
-//        tid[i] = i;
-//        pthread_create(&tid[i], NULL, myThreadFun, (void *)&tid[i]);
-//    }
-//    for (int i = 0; i < threads; i++)
-//        pthread_join(tid[i], NULL);
+    //    int threads = 4;
+    //
+    //    vector<pthread_t> tid(threads);
+    //    for (int i = 0; i < threads; i++) {
+    //        tid[i] = i;
+    //        pthread_create(&tid[i], NULL, myThreadFun, (void *)&tid[i]);
+    //    }
+    //    for (int i = 0; i < threads; i++)
+    //        pthread_join(tid[i], NULL);
     return 0;
 }

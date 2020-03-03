@@ -8,15 +8,21 @@ struct Slice {
 };
 
 class kvStore {
-private:
+   private:
     TrieNode *root;
 
-public:
+   public:
     kvStore(uint64_t max_entries) : root(new TrieNode()) {
     }
 
     ~kvStore() {
         delete root;
+    }
+
+    inline void cleanup(Slice &slc) {
+        free(slc.data);
+        slc.data = NULL;
+        slc.size = 0;
     }
 
     // returns false if key didn’t exist
@@ -27,16 +33,21 @@ public:
             return false;
         value.data = found;
         value.size = len;
+        cleanup(key);
         return true;
     }
 
     // returns true if value overwritten
     bool put(Slice &key, Slice &value) {
-        return root->insert(key.data, key.size, value.data, value.size);
+        bool res = root->insert(key.data, key.size, value.data, value.size);
+        cleanup(key);
+        return res;
     }
 
     bool del(Slice &key) {
-        return root->erase(key.data, key.size);
+        bool res = root->erase(key.data, key.size);
+        cleanup(key);
+        return res;
     }
 
     // N in benchmark.cpp is zero-indexed
