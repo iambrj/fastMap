@@ -3,6 +3,10 @@
 
 #define RANGE 52
 
+int min(int a, int b) {
+    return a < b ? a : b;
+}
+
 class TrieNode {
    public:
     int numofEnds;  // num of values that ended at this node
@@ -11,7 +15,9 @@ class TrieNode {
     int valueLen;
 
     int getIndex(char c) {
-        return c - min(min(c, 'a'), 'A') - (-(c > 'Z') & 6);
+        if (c < 'a')
+            return c - 'A';
+        return (c - 'a') + (RANGE / 2);
     }
 
     char getChar(int idx) {

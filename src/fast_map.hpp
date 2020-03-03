@@ -2,8 +2,6 @@
 #include "trie.hpp"
 #include <cstring>
 
-#define strsize(x) (int) strlen(x)
-
 struct Slice {
     int size;
     char *data;
@@ -23,37 +21,42 @@ class kvStore {
 
     // returns false if key didn’t exist
     bool get(Slice &key, Slice &value) {
-        char *found = root->lookup(key.data, key.size);
+        int len;
+        char *found = root->lookup(key.data, key.size, len);
         if (!found)
             return false;
         value.data = found;
-        value.size = strsize(found);
+        value.size = len;
         return true;
     }
 
     // returns true if value overwritten
     bool put(Slice &key, Slice &value) {
-        return root->insert(key.data, key.size, value.data);
+        return root->insert(key.data, key.size, value.data, value.size);
     }
 
     bool del(Slice &key) {
         return root->erase(key.data, key.size);
     }
 
+    // N in benchmark.cpp is zero-indexed
+    // N in trieFinal.hpp is one-indexed
+
     // returns Nth key-value pair
     bool get(int N, Slice &key, Slice &value) {
-        bool found = root->lookup(N, &key.data, &value.data);
+        int x = 0, y = 0;
+        bool found = root->lookupN(N + 1, &key.data, &value.data, x, y);
 
         if (!found)
             return false;
 
-        key.size = strsize(key.data);
-        value.size = strsize(value.data);
+        key.size = x;
+        value.size = y;
         return true;
     }
 
     // delete Nth key-value pair
     bool del(int N) {
-        return root->erase(N);
+        return root->erase(N + 1);
     }
 };
