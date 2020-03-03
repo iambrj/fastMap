@@ -72,8 +72,8 @@ class TrieNode {
             return isOverwrite;
         }
 
-        bool isOverwrite =
-            this->p->getOrInsert(*s)->insert(s + 1, sLen - 1, valueToInsert);
+        bool isOverwrite = this->p->getOrInsert(*s)->insert(
+            s + 1, sLen - 1, valueToInsert, valueLen);
         this->numofEnds += !isOverwrite;
 
         return isOverwrite;
@@ -123,12 +123,12 @@ class TrieNode {
     }
 
     bool recurseInorderOne(BSTNode* cur, int& cnt, int& N, TrieNode*& curr,
-                           char*& keyPointer) {
+                           char*& keyPointer, int& ksize) {
         if (!cur) {
             return false;
         }
 
-        if (recurseInorderOne(cur->left, cnt, N, curr, keyPointer))
+        if (recurseInorderOne(cur->left, cnt, N, curr, keyPointer, ksize))
             return true;
 
         TrieNode* trans = cur->data;
@@ -141,10 +141,11 @@ class TrieNode {
 
             *keyPointer = cur->c;
             keyPointer++;
+            ksize++;
             return true;
         }
 
-        if (recurseInorderOne(cur->right, cnt, N, curr, keyPointer))
+        if (recurseInorderOne(cur->right, cnt, N, curr, keyPointer, ksize))
             return true;
 
         return false;
@@ -163,12 +164,13 @@ class TrieNode {
 
                 if (!N) {
                     *valuePointer = curr->value;
+                    vsize = curr->valueLen;
                     continue;
                 }
             }
 
             if (this->recurseInorderOne(curr->p->getRoot(), cnt, N, curr,
-                                        keyPointer))
+                                        keyPointer, ksize))
                 continue;
             return false;
         }

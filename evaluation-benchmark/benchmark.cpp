@@ -17,7 +17,7 @@ string sliceToStr(Slice &a) {
 
 void strToSlice(string l, Slice &a) {
     a.size = l.length();
-    a.data = (char *) malloc(a.size);
+    a.data = (char *)malloc(a.size);
     strncpy(a.data, l.c_str(), a.size);
 }
 
@@ -38,8 +38,8 @@ string random_value(int stringLength) {
     string v = "";
     string letters = "";
     int low = 'a', upper = 'z', len = upper - low + 1;
-//    for (int i = 32; i <= 127; i++)
-//        letters += char(i);
+    //    for (int i = 32; i <= 127; i++)
+    //        letters += char(i);
     // TODO: use above
     for (int i = 'a'; i <= 'z'; i++)
         letters += char(i);
@@ -55,7 +55,7 @@ kvStore kv(10000000);
 map<string, string> db;
 long long db_size = 0;
 
-//void *myThreadFun(void *vargp) {
+// void *myThreadFun(void *vargp) {
 //    return nullptr;  // TODO
 //    int transactions = 0;
 //    clock_t start = clock();
@@ -124,7 +124,7 @@ int main() {
         Slice k, v;
         strToSlice(key, k);
         strToSlice(value, v);
-        cout << key << endl << value << endl;
+        // cout << key << endl << value << endl;
         kv.put(k, v);
         db_size = db.size();
     }
@@ -204,14 +204,14 @@ int main() {
             return 0;
         }
     }
-//    int threads = 4;
-//
-//    vector<pthread_t> tid(threads);
-//    for (int i = 0; i < threads; i++) {
-//        tid[i] = i;
-//        pthread_create(&tid[i], NULL, myThreadFun, (void *)&tid[i]);
-//    }
-//    for (int i = 0; i < threads; i++)
-//        pthread_join(tid[i], NULL);
+    //    int threads = 4;
+    //
+    //    vector<pthread_t> tid(threads);
+    //    for (int i = 0; i < threads; i++) {
+    //        tid[i] = i;
+    //        pthread_create(&tid[i], NULL, myThreadFun, (void *)&tid[i]);
+    //    }
+    //    for (int i = 0; i < threads; i++)
+    //        pthread_join(tid[i], NULL);
     return 0;
 }
