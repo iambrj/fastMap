@@ -37,11 +37,15 @@ string random_key(int stringLength) {
 string random_value(int stringLength) {
     string v = "";
     string letters = "";
-    for (int i = 32; i <= 127; i++)
+    int low = 'a', upper = 'z', len = upper - low + 1;
+//    for (int i = 32; i <= 127; i++)
+//        letters += char(i);
+    // TODO: use above
+    for (int i = 'a'; i <= 'z'; i++)
         letters += char(i);
 
     for (int i = 0; i < stringLength; i++)
-        v = v + letters[rand() % 96];
+        v = v + letters[rand() % len];
 
     return v;
 }
@@ -112,7 +116,7 @@ long long db_size = 0;
 int main() {
     srand(0);
 
-    int SEED = 10;
+    int SEED = 10000;
     for (int i = 0; i < SEED; i++) {
         string key = random_key(rand() % 64 + 1);
         string value = random_value(rand() % 255 + 1);
@@ -120,6 +124,7 @@ int main() {
         Slice k, v;
         strToSlice(key, k);
         strToSlice(value, v);
+        cout << key << endl << value << endl;
         kv.put(k, v);
         db_size = db.size();
     }
@@ -154,7 +159,7 @@ int main() {
             db_size = db.size();
             if (check2 == false || value != sliceToStr(check))
                 incorrect = true;
-        } else if (x == 2) {
+        } else if (x == 2 && db_size > 0) {
             int rem = rand() % db_size;
             map<string, string>::iterator itr = db.begin();
             advance(itr, rem);
@@ -168,7 +173,7 @@ int main() {
             bool check2 = kv.get(s_key, s_value);
             if (check2 == true)
                 incorrect = true;
-        } else if (x == 3) {
+        } else if (x == 3 && db_size > 0) {
             int rem = rand() % db_size;
             Slice s_key, s_value;
             bool check = kv.get(rem, s_key, s_value);
@@ -178,7 +183,7 @@ int main() {
             if (itr->first != sliceToStr(s_key) ||
                 itr->second != sliceToStr(s_value))
                 incorrect = true;
-        } else if (x == 4) {
+        } else if (x == 4 && db_size > 0) {
             int rem = rand() % db_size;
             map<string, string>::iterator itr = db.begin();
             for (int i = 0; i < rem; i++)

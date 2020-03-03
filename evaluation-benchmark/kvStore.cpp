@@ -8,10 +8,10 @@ struct Slice {
 };
 
 class kvStore {
-   private:
+private:
     TrieNode *root;
 
-   public:
+public:
     kvStore(uint64_t max_entries) : root(new TrieNode()) {
     }
 
@@ -39,10 +39,13 @@ class kvStore {
         return root->erase(key.data, key.size);
     }
 
+    // N in benchmark.cpp is zero-indexed
+    // N in trieFinal.hpp is one-indexed
+
     // returns Nth key-value pair
     bool get(int N, Slice &key, Slice &value) {
         int x = 0, y = 0;
-        bool found = root->lookupN(N, &key.data, &value.data, x, y);
+        bool found = root->lookupN(N + 1, &key.data, &value.data, x, y);
 
         if (!found)
             return false;
@@ -54,6 +57,6 @@ class kvStore {
 
     // delete Nth key-value pair
     bool del(int N) {
-        return root->erase(N);
+        return root->erase(N + 1);
     }
 };
