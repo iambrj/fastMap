@@ -1,5 +1,5 @@
 #include <cassert>
-#include "trieFinal.hpp"
+#include "trie.hpp"
 #include <cstring>
 
 struct Slice {
@@ -19,12 +19,6 @@ class kvStore {
         delete root;
     }
 
-    inline void cleanup(Slice &slc) {
-        free(slc.data);
-        slc.data = NULL;
-        slc.size = 0;
-    }
-
     // returns false if key didn’t exist
     bool get(Slice &key, Slice &value) {
         int len;
@@ -33,21 +27,16 @@ class kvStore {
             return false;
         value.data = found;
         value.size = len;
-        cleanup(key);
         return true;
     }
 
     // returns true if value overwritten
     bool put(Slice &key, Slice &value) {
-        bool res = root->insert(key.data, key.size, value.data, value.size);
-        cleanup(key);
-        return res;
+        return root->insert(key.data, key.size, value.data, value.size);
     }
 
     bool del(Slice &key) {
-        bool res = root->erase(key.data, key.size);
-        cleanup(key);
-        return res;
+        return root->erase(key.data, key.size);
     }
 
     // N in benchmark.cpp is zero-indexed

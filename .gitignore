@@ -4,3 +4,8 @@
 cmake-*
 .ycm*
 a.out
+*.out
+.idea
+cmake-build-debug
+CMakeLists.txt
+*.txt
