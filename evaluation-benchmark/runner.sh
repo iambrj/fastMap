@@ -1,16 +1,11 @@
 #!/bin/bash
 
 EXE="bench.out"
+LIMIT="8000"
 g++ benchmark.cpp -O2 -o $EXE
 
 limiter(){
-    ../killIf.sh $EXE 5000
-}
-
-pmapper(){
-    pid="$(pgrep $EXE)"
-    echo $pid
-    sudo pmap -x $pid
+    ./killIf.sh $EXE $LIMIT
 }
 
 run(){
@@ -18,7 +13,9 @@ run(){
 }
 
 checker(){
-    limiter & run
+    run&
+    limiter&
 }
 
-checker & run
+checker
+killall "killIf.sh"

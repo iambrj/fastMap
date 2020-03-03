@@ -126,7 +126,7 @@ int main() {
     double totalTime = 0;
 #endif
 
-    int SEED = 1e6;
+    int SEED = 1e4;
     double sst, een;
     for (int i = 0; i < SEED; i++) {
         string key = random_key(rand() % 64 + 1);
@@ -146,6 +146,8 @@ int main() {
         totalTime += een - sst;
 #endif
         db_size = db.size();
+        printf("\033[2J");
+        printf("%d\n", i);
     }
 #ifdef TIME_INSERTS
     clock_gettime(CLOCK_MONOTONIC_RAW, &en);
