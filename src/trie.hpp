@@ -152,6 +152,11 @@ class TrieNode {
         int cnt = 0;
         char *keyPointer = (char *)calloc(65, 1), *kOrg = keyPointer;
 
+        sem_wait(&reader_sem);
+        readercount++;
+        if(readercount==1) sem_wait(&writer_sem);
+        sem_post(&reader_sem);
+        sem_wait(&reader_sem);
         TrieNode *curr = this;
 
         while (N) {
@@ -160,6 +165,9 @@ class TrieNode {
 
                 if (!N) {
                     *valuePointer = curr->value;
+                    readercount--;
+                    if(readercount==0) sem_post(&writer_sem);
+                    sem_post(&reader_sem);
                     goto end;
                 }
             }
@@ -177,21 +185,35 @@ class TrieNode {
 
                         *keyPointer = getChar(i);
                         keyPointer++;
+                        readercount--;
+                        if(readercount==0) sem_post(&writer_sem);
+                        sem_post(&reader_sem);
                         goto end;
                     }
                 }
             }
+            readercount--;
+            if(readercount==0) sem_post(&writer_sem);
+            sem_post(&reader_sem);
             return false;
 end:;
         }
 
         *key = kOrg;
+        readercount--;
+        if(readercount==0) sem_post(&writer_sem);
+        sem_post(&reader_sem);
         return true;
     }
 
     bool erase(int N) {
         int cnt = 0;
 
+        sem_wait(&reader_sem);
+        readercount++;
+        if(readercount==1) sem_wait(&writer_sem);
+        sem_post(&reader_sem);
+        sem_wait(&reader_sem);
         TrieNode *curr = this;
         int Norg = N;
 
@@ -220,6 +242,9 @@ end:;
                 }
             }
 
+            readercount--;
+            if(readercount==0) sem_post(&writer_sem);
+            sem_post(&reader_sem);
             return false;
 end:;
         }
@@ -259,10 +284,16 @@ end:;
                 }
             }
 
+            readercount--;
+            if(readercount==0) sem_post(&writer_sem);
+            sem_post(&reader_sem);
             return false;
 end2:;
         }
 
+        readercount--;
+        if(readercount==0) sem_post(&writer_sem);
+        sem_post(&reader_sem);
         return true;
     }
 };
