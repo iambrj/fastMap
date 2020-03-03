@@ -39,8 +39,6 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
         newSlice->data = new char[value.size + 1];
         strcpy(newSlice->data, value.data);
         inc(curr_node, 1);
-
-        cout << "Parent of node " << curr_node->edgelabel << " is " << curr_node->parent->edgelabel;
     }
     else {
         size_t i=0, j=0;
@@ -65,8 +63,6 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     newSlice->data = new char[value.size + 1];
                     strcpy(newSlice->data, value.data);
                     inc(curr_node, 1);
-
-                    cout << "Parent of node " << curr_node->edgelabel << " is " << curr_node->parent->edgelabel;
                 }
                 // j remaining - split word into 2
                 else {
@@ -86,7 +82,6 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
 
                     curr_node->edgelabel = word_to_cmp.substr(0,j);
 
-                    cout << "Parent of node " << newnode->edgelabel << " is " << newnode->parent->edgelabel;
                     curr_node->isLeaf = true;
                     curr_node->children.clear();
                     curr_node->children[rem_word[0]] = std::move(newnode);
@@ -118,7 +113,6 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     strcpy(newSlice->data, value.data);
                     inc(curr_node, 1);
 
-                    cout << "Parent of node " << curr_node->edgelabel << " is " << curr_node->parent->edgelabel;
                 }
                 else {
                     // remaining edge - continue with matching
@@ -160,9 +154,6 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 curr_node->isLeaf = false;
                 curr_node->edgelabel = match_word;
 
-                cout << "Parent of node " << newnode->edgelabel << " is " << newnode->parent->edgelabel;
-
-                cout << "Parent of node " << newnode2->edgelabel << " is " << newnode2->parent->edgelabel;
                 curr_node->children.clear();
                 curr_node->children[rem_word_j[0]] = std::move(newnode);
                 curr_node->children[rem_word_i[0]] = std::move(newnode2);
@@ -173,7 +164,6 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
             }
         }
     }
-
 
     return true;
 }
@@ -193,8 +183,6 @@ string CompressedTrie::search(const int& N){
             if(left > child_cnt){
                 left -= child_cnt;
             } else {
-                cout << edge.first << endl;
-                cout << child_cnt << endl;
                 result += edge.second.get()->edgelabel;
                 curr_node = edge.second.get();
                 if(curr_node->isLeaf) left--;
@@ -208,6 +196,35 @@ string CompressedTrie::search(const int& N){
         }
     }
 
+}
+
+bool CompressedTrie::del(const int& N) {
+    CompressedTrieNode* curr_node = root.get();
+
+    int left = N;
+
+    while(true){
+        for(auto &edge: curr_node->children){
+            int child_cnt = edge.second.get()->num_leafs;
+            if(child_cnt == 0) continue;
+
+            if(left > child_cnt){
+                left -= child_cnt;
+            } else {
+                curr_node = edge.second.get();
+                if(curr_node->isLeaf) left--;
+
+                if(left == 0){
+                    curr_node->isLeaf = 0;
+                    curr_node->value.reset();
+                    inc(curr_node, -1);
+                    return true;
+                }
+
+                break;
+            }
+        }
+    }
 }
 
 Slice* CompressedTrie::search(const Slice& key) const {
@@ -230,7 +247,7 @@ Slice* CompressedTrie::search(const Slice& key) const {
         }
         // completed matching
         if( i == word.length()) {
-            if(j == word_to_match.length() && curr_node->isLeaf == true) {
+            if(j == word_to_match.length() && curr_node->isLeaf) {
                 to_ret = curr_node->value.get();
                 ispresent = true;
             }
@@ -282,7 +299,7 @@ bool CompressedTrie::del(const Slice& key) {
         }
         // completed matching
         if( i == word.length()) {
-            if(j == word_to_match.length() && curr_node->isLeaf == true) {
+            if(j == word_to_match.length() && curr_node->isLeaf) {
                 curr_node->isLeaf = false;
                 curr_node->value.reset();
                 inc(curr_node, -1);
@@ -406,10 +423,11 @@ int main() {
     cout << T.search(5) << "**" << endl;
     cout << "*******************" << endl;
 
-    T.del(D);
+    T.del(4);
+    T.del(2);
 
     cout << T.search(1) << "**" << endl;
     cout << T.search(2) << "**" << endl;
     cout << T.search(3) << "**" << endl;
-    cout << T.search(4) << "**" << endl;
+    /* cout << T.search(4) << "**" << endl; */
 }

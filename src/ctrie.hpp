@@ -14,20 +14,6 @@
 #include <memory>
 using namespace std;
 
-struct TrieNode {
-    map<char, unique_ptr<TrieNode>> children;
-    bool isLeaf;
-};
-
-class Trie {
-    unique_ptr<TrieNode> root;
-public:
-    Trie();
-    void insert(const string& word);
-    bool startsWith(const string& word); // returns true if this string matches with prefix of any string in trie
-    bool search(const string& word); // returns true only if complete string matches
-};
-
 struct Slice{
     uint8_t size;
     char*   data;
@@ -51,8 +37,8 @@ public:
     bool insert(const Slice& key, const Slice& value);
     Slice* search(const Slice& key) const;
     bool del(const Slice& key);
+    bool del(const int& N);
     string search(const int& N);
-    bool startsWith(const string& word) const;
 };
 
 #endif /* trie_h */
