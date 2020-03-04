@@ -25,7 +25,8 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
 
     if(word == "") return false;
     // No matching edge present, just insert entire word
-    if(root->children.find(word[0]) == root->children.end()) {
+    //if(root->children.find(word[0]) == root->children.end()) {
+    if(!root->sucs.search(word[0])) {
 
         //root->children[word[0]] = make_unique<CompressedTrieNode>();
         BSTNode* bstnode = root->sucs.getOrInsert(word[0]);
@@ -46,7 +47,9 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
     else {
         size_t i=0, j=0;
         string word_to_cmp;
-        CompressedTrieNode* curr_node = root->children[word[0]].get();
+        //CompressedTrieNode* curr_node = root->children[word[0]].get();
+        BSTNode* bstnode = root->sucs.getOrInsert(word[0]);
+        CompressedTrieNode* curr_node = bstnode->data.get();
         while(i < word.length()) {
             word_to_cmp = curr_node->edgelabel;
             j = 0;
@@ -107,7 +110,8 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
             // i not complete, j complete
             else if( j == word_to_cmp.length()) {
                 // no remaining edge
-                if (curr_node->children.find(word[i]) == curr_node->children.end()) {
+                // if (curr_node->children.find(word[i]) == curr_node->children.end()) {
+                 if (!curr_node->sucs.search(word[i])) {
                     CompressedTrieNode* curr_parent = curr_node;
                     //curr_node->children[word[i]] = make_unique<CompressedTrieNode>();
 
@@ -175,9 +179,11 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 //curr_node->children.clear();
                 curr_node->sucs.clear();
                 //curr_node->children[rem_word_j[0]] = std::move(newnode);
-                BSTNode* bstnode = curr_node->sucs.getOrInsert(rem_word_j[0]);
-                
-                curr_node->children[rem_word_i[0]] = std::move(newnode2);
+                curr_node->sucs.getOrInsert(rem_word_j[0])->data = std::move(newnode);
+
+                //curr_node->children[rem_word_i[0]] = std::move(newnode2);
+                curr_node->sucs.getOrInsert(rem_word_i[0])->data = std::move(newnode2);
+
                 inc(curr_node, 1);
                 
                 i = word.length();
@@ -198,13 +204,13 @@ bool CompressedTrie::search(const int& N, Slice& A, Slice& B){
 
     while(true){
         for(auto &edge: curr_node->children){
-            int child_cnt = edge.second.get()->num_leafs;
+            int child_cnt = edge.second->num_leafs;
             if(child_cnt == 0) continue;
 
             if(left > child_cnt){
                 left -= child_cnt;
             } else {
-                result += edge.second.get()->edgelabel;
+                result += edge.second->edgelabel;
                 curr_node = edge.second.get();
                 if(curr_node->isLeaf) left--;
 
@@ -231,11 +237,11 @@ bool CompressedTrie::del(const int& N) {
     int left = N;
 
     while(true){
-        bool done = 0;
+        bool done = false;
         for(auto &edge: curr_node->children){
-            int child_cnt = edge.second.get()->num_leafs;
+            int child_cnt = edge.second->num_leafs;
             if(child_cnt == 0) continue;
-            done = 1;
+            done = true;
 
             if(left > child_cnt){
                 left -= child_cnt;
@@ -244,7 +250,7 @@ bool CompressedTrie::del(const int& N) {
                 if(curr_node->isLeaf) left--;
 
                 if(left == 0){
-                    curr_node->isLeaf = 0;
+                    curr_node->isLeaf = false;
                     curr_node->value.reset();
                     inc(curr_node, -1);
                     return true;
@@ -261,12 +267,15 @@ bool CompressedTrie::search(Slice& key, Slice& value) const {
     size_t i=0, j=0;
     string word = string(key.data);
     string word_to_match;
-    if(word == "") return false;
-    if(root->children.find(word[0]) == root->children.end()) {
+    if(word.empty()) return false;
+    //if(root->children.find(word[0]) == root->children.end()) {
+    if(!root->sucs.search(word[0])) {
         return false;
     }
     bool ispresent = false;
-    CompressedTrieNode* curr_node = root->children[word[0]].get();
+    //CompressedTrieNode* curr_node = root->children[word[0]].get();
+    BSTNode* bstnode = root->sucs.getOrInsert(word[0]);
+    CompressedTrieNode* curr_node = bstnode->data.get();
     while (i < word.length()) {
         j=0;
         word_to_match = curr_node->edgelabel;
@@ -290,13 +299,15 @@ bool CompressedTrie::search(Slice& key, Slice& value) const {
             // j completed
             if( j == word_to_match.length()) {
                 // nowhere to go
-                if(curr_node->children.find(word[i]) == curr_node->children.end()) {
+                //if(curr_node->children.find(word[i]) == curr_node->children.end()) {
+                if(!curr_node->sucs.search(word[i])) {
                     ispresent = false;
                     break;
                 }
                 else {
                     // continue matching
-                    curr_node = curr_node->children[word[i]].get();
+                    // curr_node = curr_node->children[word[i]].get();
+                     curr_node = curr_node->sucs.getOrInsert(word[i])->data.get();
                 }
             }
             // j remaining, no match
@@ -313,12 +324,16 @@ bool CompressedTrie::del(const Slice& key) {
     size_t i=0, j=0;
     string word = string(key.data);
     string word_to_match;
-    if(word == "") return false;
-    if(root->children.find(word[0]) == root->children.end()) {
+    if(word.empty()) return false;
+    //if(root->children.find(word[0]) == root->children.end()) {
+    if(!root->sucs.search(word[0])) {
         return false;
     }
     bool ispresent = false;
-    CompressedTrieNode* curr_node = root->children[word[0]].get();
+    BSTNode* bstnode = root->sucs.getOrInsert(word[0]);
+    CompressedTrieNode* curr_node = bstnode->data.get();
+
+    //CompressedTrieNode* curr_node = root->children[word[0]].get();
     while (i < word.length()) {
         j=0;
         word_to_match = curr_node->edgelabel;
