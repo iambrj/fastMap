@@ -27,10 +27,10 @@ class CompressedTrie {
 public:
     CompressedTrie();
     bool insert(const Slice& key, const Slice& value);
-    Slice* search(const Slice& key) const;
+    bool search(Slice& key, Slice& value) const;
     bool del(const Slice& key);
     bool del(const int& N);
-    string search(const int& N);
+    bool search(const int& N, Slice& A, Slice& B);
 };
 
 #endif /* trie_h */
