@@ -392,45 +392,76 @@ BSTNode::~BSTNode() {
 
 // BST FUNCTIONS
 BSTNode* BST::_insert(BSTNode* cur, char c) {
-    if (!cur) {  // 50% of all lookups
-        return new BSTNode(c);
-    }
+    //if (!cur) {  // 50% of all lookups
+    //    return new BSTNode(c);
+    //}
 
-    if (cur->c < c) {
-        cur->right = _insert(cur->right, c);
-    } else if (cur->c > c) {
-        cur->left = _insert(cur->left, c);
+    //if (cur->c < c) {
+    //    cur->right = _insert(cur->right, c);
+    //} else if (cur->c > c) {
+    //    cur->left = _insert(cur->left, c);
+    //}
+    //return cur;
+    while (cur) {
+        if (cur->c < c) {
+            cur = cur->right;
+        } else if (cur->c > c) {
+            cur = cur->left;
+        } else {
+            return cur;
+        }
     }
-    return cur;
+    return new BSTNode(c);
 }
 
 BSTNode* BST::_get(BSTNode* cur, char c) {
-    if (!cur) {
-        return nullptr;
-    }
+    //if (!cur) {
+    //    return nullptr;
+    //}
 
-    if (cur->c < c) {
-        return _get(cur->right, c);
-    } else if (cur->c > c) {
-        return _get(cur->left, c);
-    } else {
-        return cur;  // least likely, at the end
+    //if (cur->c < c) {
+    //    return _get(cur->right, c);
+    //} else if (cur->c > c) {
+    //    return _get(cur->left, c);
+    //} else {
+    //    return cur;  // least likely, at the end
+    //}
+    while (cur) {
+        if (cur->c < c) {
+            cur = cur->right;
+        } else if (cur->c > c) {
+            cur = cur->left;
+        } else {
+            return cur;
+        }
     }
+    return nullptr;
 }
 
 BSTNode* BST::_del(BSTNode* cur, char c) {
-    if (!cur) {
-        return nullptr;
-    }
+    //if (!cur) {
+    //    return nullptr;
+    //}
 
-    if (cur->c < c) {
-        cur->right = _del(cur->right, c);
-        return cur;
-    } else if (cur->c > c) {
-        cur->left = _del(cur->left, c);
-        return cur;
+    //if (cur->c < c) {
+    //    cur->right = _del(cur->right, c);
+    //    return cur;
+    //} else if (cur->c > c) {
+    //    cur->left = _del(cur->left, c);
+    //    return cur;
+    //}
+    //delete cur;
+    //return nullptr;
+    while (cur) {
+        if (cur->c < c) {
+            cur = cur->right;
+        } else if (cur->c > c) {
+            cur = cur->left;
+        } else {
+            delete cur;
+            return nullptr;
+        }
     }
-    delete cur;
     return nullptr;
 }
 
