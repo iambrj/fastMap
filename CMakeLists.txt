@@ -7,4 +7,6 @@ include_directories(src)
 
 add_executable(fastMap
         src/ctrie.cpp
-        src/ctrie.hpp)
+        src/ctrie.hpp
+        src/fast_map.hpp
+        src/tester.cpp)

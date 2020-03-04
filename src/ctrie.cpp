@@ -37,7 +37,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
         Slice* newSlice = curr_node->value.get();
         newSlice->size = value.size;
         newSlice->data = new char[value.size + 1];
-        strcpy(newSlice->data, value.data);
+        strncpy(newSlice->data, value.data, value.size + 1);
         inc(curr_node, 1);
     }
     else {
@@ -210,9 +210,11 @@ bool CompressedTrie::del(const int& N) {
     int left = N;
 
     while(true){
+        bool done = 0;
         for(auto &edge: curr_node->children){
             int child_cnt = edge.second.get()->num_leafs;
             if(child_cnt == 0) continue;
+            done = 1;
 
             if(left > child_cnt){
                 left -= child_cnt;
@@ -230,6 +232,7 @@ bool CompressedTrie::del(const int& N) {
                 break;
             }
         }
+        if(!done) return false;
     }
 }
 
@@ -255,7 +258,8 @@ bool CompressedTrie::search(Slice& key, Slice& value) const {
             if(j == word_to_match.length() && curr_node->isLeaf) {
                 value.size = curr_node->value->size;
                 value.data = new char[curr_node->value->size + 1];
-                strcpy(value.data, curr_node->value->data);
+                strncpy(value.data, curr_node->value->data, value.size + 1);
+                //cout << curr_node->value->data << endl;
                 ispresent = true;
             }
             else ispresent = false;

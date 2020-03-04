@@ -86,6 +86,7 @@ void fileCheck() {
     kvStore fastMap((uint64_t)opCount);
 
     for (int i = 1; i <= opCount; i++) {
+        cout << i << endl;
         int op;
         file >> op;
         string key;
