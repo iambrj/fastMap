@@ -27,8 +27,11 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
     // No matching edge present, just insert entire word
     if(root->children.find(word[0]) == root->children.end()) {
 
-        root->children[word[0]] = make_unique<CompressedTrieNode>();
-        CompressedTrieNode* curr_node = root->children[word[0]].get();
+        //root->children[word[0]] = make_unique<CompressedTrieNode>();
+        BSTNode* bstnode = root->sucs.getOrInsert(word[0]);
+        bstnode->data = make_unique<CompressedTrieNode>();
+
+        CompressedTrieNode* curr_node = bstnode->data.get();
         curr_node->edgelabel = word;
         curr_node->isLeaf = true;
         curr_node->parent = root.get();
@@ -75,7 +78,9 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     if(curr_node->isLeaf){
                         newnode->value = std::move(curr_node->value);
                     }
-                    newnode->children = std::move(curr_node->children);
+                    //newnode->children = std::move(curr_node->children);
+                    newnode->sucs = std::move(curr_node->sucs);
+
                     for(auto &baccha: newnode->children) {
                         baccha.second->parent = newnode.get();
                     }
@@ -83,15 +88,20 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     curr_node->edgelabel = word_to_cmp.substr(0,j);
 
                     curr_node->isLeaf = true;
-                    curr_node->children.clear();
-                    curr_node->children[rem_word[0]] = std::move(newnode);
+                    //curr_node->children.clear();
+                    curr_node->sucs.clear();
+
+                    //curr_node->children[rem_word[0]] = std::move(newnode);
+
+                    BSTNode* bstnode = root->sucs.getOrInsert(rem_word[0]);
+                    bstnode->data = std::move(newnode);
+
                     curr_node->value = make_unique<Slice>();
                     Slice* newSlice = curr_node->value.get();
                     newSlice->size = value.size;
                     newSlice->data = new char[value.size + 1];
                     strcpy(newSlice->data, value.data);
                     inc(curr_node, 1);
-
                 }
             }
             // i not complete, j complete
@@ -99,8 +109,13 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 // no remaining edge
                 if (curr_node->children.find(word[i]) == curr_node->children.end()) {
                     CompressedTrieNode* curr_parent = curr_node;
-                    curr_node->children[word[i]] = make_unique<CompressedTrieNode>();
-                    curr_node = curr_node->children[word[i]].get();
+                    //curr_node->children[word[i]] = make_unique<CompressedTrieNode>();
+
+                    BSTNode* bstnode = root->sucs.getOrInsert(word[i]);
+                    bstnode->data = make_unique<CompressedTrieNode>();
+
+                    //curr_node = curr_node->children[word[i]].get();
+                    curr_node = bstnode->data.get();
                     curr_node->edgelabel = word.substr(i);
                     curr_node->isLeaf = true;
                     /* curr_node->num_leafs++; */
@@ -116,7 +131,9 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 }
                 else {
                     // remaining edge - continue with matching
-                    curr_node = curr_node->children[word[i]].get();
+                    //curr_node = curr_node->children[word[i]].get();
+                    BSTNode* bstnode = root->sucs.getOrInsert(word[i]);
+                    curr_node = bstnode->data.get();
                 }
             }
             // i not complete & j not complete. Split into two and insert
@@ -131,7 +148,8 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 if(curr_node->isLeaf){
                     newnode->value = std::move(curr_node->value);
                 }
-                newnode->children = std::move(curr_node->children);
+                //newnode->children = std::move(curr_node->children);
+                newnode->sucs = std::move(curr_node->sucs);
                 newnode->edgelabel = rem_word_j;
                 newnode->parent = curr_node;
                 for(auto &baccha: newnode->children){
@@ -154,8 +172,11 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 curr_node->isLeaf = false;
                 curr_node->edgelabel = match_word;
 
-                curr_node->children.clear();
-                curr_node->children[rem_word_j[0]] = std::move(newnode);
+                //curr_node->children.clear();
+                curr_node->sucs.clear();
+                //curr_node->children[rem_word_j[0]] = std::move(newnode);
+                BSTNode* bstnode = curr_node->sucs.getOrInsert(rem_word_j[0]);
+                
                 curr_node->children[rem_word_i[0]] = std::move(newnode2);
                 inc(curr_node, 1);
                 
@@ -339,57 +360,90 @@ bool CompressedTrie::del(const Slice& key) {
     return ispresent;
 }
 
-/*
-int main() {
-
-    CompressedTrie T;
-    Slice A, B, C, D, E;
-    A.size = 5;
-    A.data = new char[6];
-    strcpy(A.data, "aello");
-    B.size = 2;
-    B.data = new char[3];
-    strcpy(B.data, "aa");
-    C.size = 8;
-    C.data = new char[9];
-    strcpy(C.data, "aaazouwu");
-    D.size = 6;
-    D.data = new char[7];
-    strcpy(D.data, "aaazoz");
-    E.size = 4;
-    E.data = new char[5];
-    strcpy(E.data, "hasl");
-
-    T.insert(B, B);
-    T.insert(C, C);
-    T.insert(E, E);
-    T.insert(D, D);
-    T.insert(A, A);
-    cout << endl;
-    T.del(D);
-    T.del(E);
-    T.del(A);
-    T.insert(D, E);
-
-    cout << T.search(D)->data << endl;
-    cout << T.search(E) << endl;
-    cout << T.search(A) << endl;
-    cout << T.search(B)->data << endl;
-    cout << T.search(C)->data << endl;
-    cout << "------------" << endl;
-    cout << T.search(1) << "**" << endl;
-    cout << T.search(2) << "**" << endl;
-    cout << T.search(3) << "**" << endl;
-    cout << T.search(4) << "**" << endl;
-    cout << T.search(5) << "**" << endl;
-    cout << "*******************" << endl;
-
-    T.del(4);
-    T.del(2);
-
-    cout << T.search(1) << "**" << endl;
-    cout << T.search(2) << "**" << endl;
-    cout << T.search(3) << "**" << endl;
-    cout << T.search(4) << "**" << endl;
+// BSTNode FUNCTIONS
+BSTNode::BSTNode(char c)
+    : c(c), left(nullptr), right(nullptr) {
 }
-*/
+
+BSTNode::~BSTNode() {
+    delete this->left;
+    delete this->right;
+
+    this->data.reset();
+    this->left = nullptr;
+    this->right = nullptr;
+    // this node will automatically be deleted
+}
+
+// BST FUNCTIONS
+BSTNode* BST::_insert(BSTNode* cur, char c) {
+    if (!cur) {  // 50% of all lookups
+        return new BSTNode(c);
+    }
+
+    if (cur->c < c) {
+        cur->right = _insert(cur->right, c);
+    } else if (cur->c > c) {
+        cur->left = _insert(cur->left, c);
+    }
+    return cur;
+}
+
+BSTNode* BST::_get(BSTNode* cur, char c) {
+    if (!cur) {
+        return nullptr;
+    }
+
+    if (cur->c < c) {
+        return _get(cur->right, c);
+    } else if (cur->c > c) {
+        return _get(cur->left, c);
+    } else {
+        return cur;  // least likely, at the end
+    }
+}
+
+BSTNode* BST::_del(BSTNode* cur, char c) {
+    if (!cur) {
+        return nullptr;
+    }
+
+    if (cur->c < c) {
+        cur->right = _del(cur->right, c);
+        return cur;
+    } else if (cur->c > c) {
+        cur->left = _del(cur->left, c);
+        return cur;
+    }
+    delete cur;
+    return nullptr;
+}
+
+BST::BST() : root(nullptr) {
+}
+
+BST::~BST() {
+    delete this->root;
+    this->root = nullptr;
+}
+
+BSTNode* BST::getOrInsert(char c) {
+    this->root = this->_insert(this->root, c);
+    return _get(this->root, c);
+}
+
+BSTNode* BST::search(char c) {
+    return _get(this->root, c);
+}
+
+void BST::remove(char c) {
+    this->root = _del(this->root, c);
+}
+
+BSTNode* BST::getRoot() {
+    return this->root;
+}
+
+void BST::clear() {
+    delete this->root;
+}

@@ -86,7 +86,6 @@ void fileCheck() {
     kvStore fastMap((uint64_t)opCount);
 
     for (int i = 1; i <= opCount; i++) {
-        cout << i << endl;
         int op;
         file >> op;
         string key;
@@ -117,9 +116,9 @@ void fileCheck() {
                 }
 
                 // key was allocated new memory by trie.hpp
-                // need to free it since lookup successful
-                if (x.data)
-                    free(x.data);
+                // need to ree it since lookup successful
+                //if (x.data)
+                //    ;
 
                 break;
             case INSERT_OP:
@@ -155,7 +154,7 @@ void fileCheck() {
                     fail(2);
                 }
 
-                free(x.data);
+                ;
                 // cannot free y, sicne it's a value being used by the trienode
 
                 break;
@@ -183,7 +182,7 @@ void fileCheck() {
                 }
 
                 if (x.data)
-                    free(x.data);
+                    ;
 
                 break;
             case LOOKUPN_OP:
@@ -215,7 +214,7 @@ void fileCheck() {
                 }
 
                 if (x.data)
-                    free(x.data);
+                    ;
 
                 break;
             case ERASEN_OP:
@@ -244,7 +243,7 @@ void fileCheck() {
                         fail(1);
                     }
 
-                    free(x.data);
+                    ;
                 }
 
                 break;

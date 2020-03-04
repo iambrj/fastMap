@@ -11,8 +11,38 @@ struct Slice{
     char*   data;
 };
 
+class CompressedTrieNode;
+
+class BSTNode {
+   public:
+    char c;
+    unique_ptr<CompressedTrieNode> data;
+    BSTNode* left;
+    BSTNode* right;
+
+    explicit BSTNode(char c);
+    ~BSTNode();
+};
+
+class BST {
+    BSTNode* root;
+    BSTNode* _insert(BSTNode* cur, char c);
+    BSTNode* _get(BSTNode* cur, char c);
+    BSTNode* _del(BSTNode* cur, char c);
+
+   public:
+    BST();
+    ~BST();
+    BSTNode* getOrInsert(char c);
+    BSTNode* search(char c);
+    void remove(char c);
+    BSTNode* getRoot();
+    void clear();
+};
+
 struct CompressedTrieNode {
     map<char, unique_ptr<CompressedTrieNode> > children;
+    BST sucs;
     string edgelabel;
     bool isLeaf;
     int num_leafs;
