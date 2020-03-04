@@ -14,8 +14,6 @@ class kvStore {
    public:
     kvStore(uint64_t max_entries) { }
 
-    ~kvStore() { }
-
     // returns false if key didn’t exist
     bool get(Slice &key, Slice &value) {
         /*

@@ -181,8 +181,6 @@ void fileCheck() {
                     fail(1);
                 }
 
-                if (x.data)
-                    ;
 
                 break;
             case LOOKUPN_OP:
@@ -212,9 +210,6 @@ void fileCheck() {
                     printf("%s\n", y.data);
                     fail(1);
                 }
-
-                if (x.data)
-                    ;
 
                 break;
             case ERASEN_OP:
@@ -255,12 +250,12 @@ void fileCheck() {
         y.data = NULL;
         z.data = NULL;
 
-        //        printf("Completed op %d\n", i);
+                printf("Completed op %d\n", i);
     }
 
     // remove all unremoved values from map
-    while (fastMap.del(1))
-        ;
+    //while (fastMap.del(1))
+     //   ;
 }
 
 int main() {

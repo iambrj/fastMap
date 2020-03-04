@@ -14,7 +14,8 @@ struct Slice{
 class CompressedTrieNode;
 
 struct BSTNode {
-    char c;
+
+public: char c;
     unique_ptr<CompressedTrieNode> data;
     BSTNode* left;
     BSTNode* right;
@@ -24,12 +25,12 @@ struct BSTNode {
 };
 
 class BST {
-    BSTNode* root;
+
+public:    BSTNode* root;
     BSTNode* _insert(BSTNode* cur, char c);
     BSTNode* _get(BSTNode* cur, char c);
     BSTNode* _del(BSTNode* cur, char c);
 
-   public:
     BST();
     ~BST();
     BSTNode* getOrInsert(char c);
@@ -40,6 +41,7 @@ class BST {
 };
 
 struct CompressedTrieNode {
+public:
     map<char, unique_ptr<CompressedTrieNode> > children;
     BST sucs;
     string edgelabel;
@@ -48,13 +50,19 @@ struct CompressedTrieNode {
     CompressedTrieNode* parent;
     unique_ptr<Slice> value;
     CompressedTrieNode() : num_leafs(0){};
+    ~CompressedTrieNode(){
+        sucs.clear();
+    }
 };
 
 class CompressedTrie {
-    unique_ptr<CompressedTrieNode> root;
-    void inc(CompressedTrieNode* curr_node, const int& val);
 public:
+    unique_ptr<CompressedTrieNode> root;
+
     CompressedTrie();
+    ~CompressedTrie(){
+       root.reset();
+    }
     bool insert(const Slice& key, const Slice& value);
     bool search(Slice& key, Slice& value) const;
     bool del(const Slice& key);

@@ -1,4 +1,4 @@
-#define SEED 10  // no elements to be inserted at beginning
+#define SEED 10000  // no elements to be inserted at beginning
 #define MAX_KEY_LEN 64
 #define MAX_VALUE_LEN 240
 
@@ -8,7 +8,7 @@
 #define ERASE_OP 2
 #define LOOKUPN_OP 3
 #define ERASEN_OP 4
-#define OP_COUNT (int)1e4
+#define OP_COUNT (int)1e5
 //#define MAX_OUT
 #define PREFIX_OVERLAP
 
