@@ -5,8 +5,6 @@
 #include "kvStore.cpp"
 
 using namespace std;
-// #define TIME_INSERTS
-#define MULTITHREAD_TEST
 
 string sliceToStr(Slice &a) {
     string ret = "";
@@ -30,8 +28,10 @@ string random_key(int stringLength) {
         letters += i;
     for (char i = 'A'; i <= 'Z'; i++)
         letters += i;
-    for (int i = 0; i < stringLength; i++)
-        k = k + letters[rand() % 52];
+    for (int i = 0; i < stringLength - 1; i++)
+        k = k + letters[(rand() % 52 + rand() % 10) % 52];
+
+    k = k + '\n';
 
     return k;
 }
@@ -39,32 +39,29 @@ string random_key(int stringLength) {
 string random_value(int stringLength) {
     string v = "";
     string letters = "";
-    int low = 'a', upper = 'z', len = upper - low + 1;
-    //    for (int i = 32; i <= 127; i++)
-    //        letters += char(i);
-    // TODO: use above
-    for (int i = 'a'; i <= 'z'; i++)
+    for (int i = 32; i < 127; i++)
         letters += char(i);
 
-    for (int i = 0; i < stringLength; i++)
-        v = v + letters[rand() % len];
+    for (int i = 0; i < stringLength - 1; i++)
+        v = v + letters[rand() % 95];
+    v = v + '\n';
 
     return v;
 }
 
-long CLOCKS_PER_SECOND = 1000000;
 kvStore kv(10000000);
 map<string, string> db;
 long long db_size = 0;
 
 void *myThreadFun(void *vargp) {
-    int transactions = 0;
-    clock_t start = clock();
-    int time = 10;
-    clock_t tt = clock();
-    while ((float(tt - start) / CLOCKS_PER_SECOND) <= time) {
+    long long int transactions = 0;
+    time_t start, end;
+    int limit = 10;
+    time(&start);
+    time(&end);
+    while ((end - start) < limit) {
+        transactions += 1000;
         for (int i = 0; i < 10000; i++) {
-            transactions += 1;
             int x = rand() % 5;
             if (x == 0) {
                 string key = random_key(rand() % 64 + 1);
@@ -108,72 +105,43 @@ void *myThreadFun(void *vargp) {
                 db_size--;
             }
         }
-        tt = clock();
+        time(&end);
     }
-    cout << transactions / time << endl;
+    cout << "TRANSACTIONS PER SEC = " << transactions / limit << endl;
     return NULL;
 }
 
-inline double timer(struct timespec &t) {
-    return t.tv_nsec / 1e9 + t.tv_sec;
-}
-
 int main() {
-    srand(0);
-
-#ifdef TIME_INSERTS
-    struct timespec st, en;
-    double totalTime = 0;
-    double sst, een;
-#endif
-
-    int SEED = 1e4;
-#ifdef MULTITHREAD_TEST
-    SEED = 0;
-#endif
-
-    for (int i = 0; i < SEED; i++) {
-        string key = random_key(rand() % 64 + 1);
-        string value = random_value(rand() % 255 + 1);
+    int put_enteries = 100000;
+    time_t start_p, end_p;
+    float put_time = 0;
+    vector<Slice> keys;
+    vector<Slice> values;
+    for (int i = 0; i < put_enteries; i++) {
+        string key = random_key(rand() % 63 + 1);
+        string value = random_value(rand() % 254 + 1);
         db[key] = value;
         Slice k, v;
         strToSlice(key, k);
         strToSlice(value, v);
-#ifdef TIME_INSERTS
-        clock_gettime(CLOCK_MONOTONIC_RAW, &st);
-#endif
-        kv.put(k, v);
-#ifdef TIME_INSERTS
-        clock_gettime(CLOCK_MONOTONIC_RAW, &en);
-        sst = timer(st);
-        een = timer(en);
-        totalTime += een - sst;
-#endif
+        keys.push_back(k);
+        values.push_back(v);
         db_size = db.size();
-        printf("\033[2J");
-        printf("%d\n", i);
     }
-#ifdef TIME_INSERTS
-    clock_gettime(CLOCK_MONOTONIC_RAW, &en);
 
-    printf("%.8lf", totalTime);
-    return 0;
-#endif
+    time(&start_p);
+    for (int i = 0; i < put_enteries; i++)
+        kv.put(keys[i], values[i]);
+    time(&end_p);
+
+    cout << "TIME FOR PUTTING " << put_enteries
+         << " ENTERIES = " << setprecision(9) << (end_p - start_p) << " SEC "
+         << endl;
 
     bool incorrect = false;
 
-    int lim = 1e5;
-#ifdef MULTITHREAD_TEST
-    lim = 0;
-#endif
-
-    for (int i = 0; i < lim; i++) {
+    for (int i = 0; i < 10000; i++) {
         int x = rand() % 5;
-
-        if (x > 1 && !db_size) {
-            x = 1;
-        }
-
         if (x == 0) {
             string key = random_key(rand() % 64 + 1);
             Slice s_key, s_value;
@@ -238,19 +206,15 @@ int main() {
             if (check2 == true)
                 incorrect = true;
         }
-
-        printf("\033[2J");
-        printf("%d\n", i);
-
-        if (incorrect == true) {
-            cout << i << " " << x << endl;
-            return 0;
-        }
     }
+    if (incorrect == true) {
+        cout << "INCORRECT OUTPUT" << endl;
+        return 0;
+    } else
+        cout << "CORRECT OUTPUT" << endl;
+    int threads = 4;
 
-    int threads = 5;
-
-    vector<pthread_t> tid(threads);
+    pthread_t tid[threads];
     for (int i = 0; i < threads; i++) {
         tid[i] = i;
         pthread_create(&tid[i], NULL, myThreadFun, (void *)&tid[i]);
