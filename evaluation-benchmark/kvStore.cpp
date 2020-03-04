@@ -1,6 +1,7 @@
 #include <cassert>
 #include "trieFinal.hpp"
 #include <cstring>
+#include"monitor.cpp"
 
 struct Slice {
     int size;
@@ -10,58 +11,45 @@ struct Slice {
 class kvStore {
 private:
     TrieNode *root;
-    pthread_mutex_t lock;
+    monitor M;
 
 public:
-    kvStore(uint64_t max_entries) : root(new TrieNode()) {
-        if (pthread_mutex_init(&lock, NULL) != 0) {
-            printf("\n mutex init has failed\n");
-            exit(1);
-        }
-
+    kvStore(uint64_t max_entries) : root(new TrieNode()), M(monitor()) {
     }
 
     ~kvStore() {
         delete root;
-        pthread_mutex_destroy(&lock);
-    }
-
-    inline void cleanup() {
-        pthread_mutex_unlock(&lock);
-    }
-
-    inline void gainControl() {
-        pthread_mutex_lock(&lock);
     }
 
     // returns false if key didn’t exist
     bool get(Slice &key, Slice &value) {
-        gainControl();
+        M.beginread();
+
         int len;
         char *found = root->lookup(key.data, key.size, len);
         if (!found) {
-            cleanup();
+            M.endread();
             return false;
         }
 
         value.data = found;
         value.size = len;
-        cleanup();
+        M.endread();
         return true;
     }
 
     // returns true if value overwritten
     bool put(Slice &key, Slice &value) {
-        gainControl();
+        M.beginwrite();
         bool res = root->insert(key.data, key.size, value.data, value.size);
-        cleanup();
+        M.endwrite();
         return res;
     }
 
     bool del(Slice &key) {
-        gainControl();
+        M.beginwrite();
         bool res = root->erase(key.data, key.size);
-        cleanup();
+        M.endwrite();
         return res;
     }
 
@@ -70,26 +58,26 @@ public:
 
     // returns Nth key-value pair
     bool get(int N, Slice &key, Slice &value) {
-        gainControl();
+        M.beginread();
         int x = 0, y = 0;
         bool found = root->lookupN(N + 1, &key.data, &value.data, x, y);
 
         if (!found) {
-            cleanup();
+            M.endread();
             return false;
         }
 
         key.size = x;
         value.size = y;
-        cleanup();
+        M.endread();
         return true;
     }
 
     // delete Nth key-value pair
     bool del(int N) {
-        gainControl();
+        M.beginwrite();
         bool ans = root->erase(N + 1);
-        cleanup();
+        M.endwrite();
         return ans;
     }
 };
