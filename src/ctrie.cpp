@@ -8,7 +8,6 @@ CompressedTrie::CompressedTrie() {
     root = make_unique<CompressedTrieNode>();
 }
 
-<<<<<<< HEAD
 void update_kids(BSTNode* r, CompressedTrieNode* val){
     if (!r) return;
     update_kids(r->left, val);
