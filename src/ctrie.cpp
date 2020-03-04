@@ -9,6 +9,13 @@ CompressedTrie::CompressedTrie() {
     root = make_unique<CompressedTrieNode>();
 }
 
+void update_kids(BSTNode* r, CompressedTrieNode* val){
+    if (!r) return;
+    update_kids(r->left, val);
+    update_kids(r->right, val);
+    r->data->parent = val;
+}
+
 void CompressedTrie::inc(CompressedTrieNode* curr_node, const int& val){
     if(curr_node == root.get()) {
         curr_node->num_leafs += val;
@@ -23,7 +30,7 @@ void CompressedTrie::inc(CompressedTrieNode* curr_node, const int& val){
 bool CompressedTrie::insert(const Slice &key, const Slice &value) {
     string word = string(key.data);
 
-    if(word == "") return false;
+    if(word.empty()) return false;
     // No matching edge present, just insert entire word
     //if(root->children.find(word[0]) == root->children.end()) {
     if(!root->sucs.search(word[0])) {
@@ -84,9 +91,11 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     //newnode->children = std::move(curr_node->children);
                     newnode->sucs = std::move(curr_node->sucs);
 
-                    for(auto &baccha: newnode->children) {
+                    /*for(auto &baccha: newnode->children) {
                         baccha.second->parent = newnode.get();
-                    }
+                    }*/
+
+                    update_kids(newnode->sucs.getRoot(), newnode.get());
 
                     curr_node->edgelabel = word_to_cmp.substr(0,j);
 
@@ -96,8 +105,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
 
                     //curr_node->children[rem_word[0]] = std::move(newnode);
 
-                    BSTNode* bstnode = root->sucs.getOrInsert(rem_word[0]);
-                    bstnode->data = std::move(newnode);
+                    curr_node->sucs.getOrInsert(rem_word[0])->data = std::move(newnode);
 
                     curr_node->value = make_unique<Slice>();
                     Slice* newSlice = curr_node->value.get();
@@ -115,11 +123,11 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     CompressedTrieNode* curr_parent = curr_node;
                     //curr_node->children[word[i]] = make_unique<CompressedTrieNode>();
 
-                    BSTNode* bstnode = root->sucs.getOrInsert(word[i]);
-                    bstnode->data = make_unique<CompressedTrieNode>();
+                    auto node = curr_node->sucs.getOrInsert(word[i]);
+                    node->data = make_unique<CompressedTrieNode>();
 
                     //curr_node = curr_node->children[word[i]].get();
-                    curr_node = bstnode->data.get();
+                    curr_node = node->data.get();
                     curr_node->edgelabel = word.substr(i);
                     curr_node->isLeaf = true;
                     /* curr_node->num_leafs++; */
@@ -132,12 +140,10 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     strcpy(newSlice->data, value.data);
                     inc(curr_node, 1);
 
-                }
-                else {
+                } else {
                     // remaining edge - continue with matching
                     //curr_node = curr_node->children[word[i]].get();
-                    BSTNode* bstnode = root->sucs.getOrInsert(word[i]);
-                    curr_node = bstnode->data.get();
+                    curr_node = curr_node->sucs.getOrInsert(word[i])->data.get();
                 }
             }
             // i not complete & j not complete. Split into two and insert
@@ -156,10 +162,11 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 newnode->sucs = std::move(curr_node->sucs);
                 newnode->edgelabel = rem_word_j;
                 newnode->parent = curr_node;
-                for(auto &baccha: newnode->children){
+                /*for(auto &baccha: newnode->children){
                     baccha.second->parent = newnode.get();
-                }
+                }*/
 
+                update_kids(newnode->sucs.getRoot(), newnode.get());
                 
                 unique_ptr<CompressedTrieNode> newnode2 = make_unique<CompressedTrieNode>();
                 newnode2->isLeaf = true;
@@ -182,7 +189,9 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 curr_node->sucs.getOrInsert(rem_word_j[0])->data = std::move(newnode);
 
                 //curr_node->children[rem_word_i[0]] = std::move(newnode2);
-                curr_node->sucs.getOrInsert(rem_word_i[0])->data = std::move(newnode2);
+                char x = rem_word_i[0];
+                auto node = curr_node->sucs.getOrInsert(x);
+                node->data = std::move(newnode2);
 
                 inc(curr_node, 1);
                 
@@ -200,7 +209,7 @@ bool CompressedTrie::search(const int& N, Slice& A, Slice& B){
     
     int left = N;
 
-    string result = "";
+    string result;
 
     while(true){
         for(auto &edge: curr_node->children){
@@ -392,45 +401,42 @@ BSTNode::~BSTNode() {
 
 // BST FUNCTIONS
 BSTNode* BST::_insert(BSTNode* cur, char c) {
-    if (!cur) {  // 50% of all lookups
-        return new BSTNode(c);
+    while (cur) {
+        if (cur->c < c) {
+            cur = cur->right;
+        } else if (cur->c > c) {
+            cur = cur->left;
+        } else {
+            return cur;
+        }
     }
-
-    if (cur->c < c) {
-        cur->right = _insert(cur->right, c);
-    } else if (cur->c > c) {
-        cur->left = _insert(cur->left, c);
-    }
-    return cur;
+    return new BSTNode(c);
 }
 
 BSTNode* BST::_get(BSTNode* cur, char c) {
-    if (!cur) {
-        return nullptr;
+    while (cur) {
+        if (cur->c < c) {
+            cur = cur->right;
+        } else if (cur->c > c) {
+            cur = cur->left;
+        } else {
+            return cur;
+        }
     }
-
-    if (cur->c < c) {
-        return _get(cur->right, c);
-    } else if (cur->c > c) {
-        return _get(cur->left, c);
-    } else {
-        return cur;  // least likely, at the end
-    }
+    return nullptr;
 }
 
 BSTNode* BST::_del(BSTNode* cur, char c) {
-    if (!cur) {
-        return nullptr;
+    while (cur) {
+        if (cur->c < c) {
+            cur = cur->right;
+        } else if (cur->c > c) {
+            cur = cur->left;
+        } else {
+            delete cur;
+            return nullptr;
+        }
     }
-
-    if (cur->c < c) {
-        cur->right = _del(cur->right, c);
-        return cur;
-    } else if (cur->c > c) {
-        cur->left = _del(cur->left, c);
-        return cur;
-    }
-    delete cur;
     return nullptr;
 }
 

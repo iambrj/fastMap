@@ -13,8 +13,7 @@ struct Slice{
 
 class CompressedTrieNode;
 
-class BSTNode {
-   public:
+struct BSTNode {
     char c;
     unique_ptr<CompressedTrieNode> data;
     BSTNode* left;
