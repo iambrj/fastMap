@@ -454,32 +454,18 @@ BSTNode *BST::_insert(BSTNode *cur, char c) {
 }
 
 BSTNode *BST::_get(BSTNode *cur, char c) {
-    if (!cur) {
-        return nullptr;
-    }
 
-    if (cur->c < c) {
-        return _get(cur->right, c);
-    } else if (cur->c > c) {
-        return _get(cur->left, c);
-    } else {
-        return cur;  // least likely, at the end
-    }
-}
-
-/*BSTNode* BST::_del(BSTNode* cur, char c) {
-    while (cur) {
+    while(cur) {
         if (cur->c < c) {
             cur = cur->right;
-        } else if (cur->c > c) {
-            cur = cur->left;
-        } else {
-            delete cur;
-            return nullptr;
         }
+        else if(cur-> c > c){
+            cur = cur->left;
+        }
+        else return cur;
     }
     return nullptr;
-}*/
+}
 
 BST::BST() : root(nullptr) {
 }

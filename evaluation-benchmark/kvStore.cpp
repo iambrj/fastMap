@@ -69,7 +69,7 @@ class kvStore {
         return true;
         */
         M.beginread();
-        auto result = T.search(N, key, value); 
+        auto result = T.search(N + 1, key, value); 
         M.endread();
         return result;
     }
@@ -78,7 +78,7 @@ class kvStore {
     bool del(int N) {
         /* return root->erase(N + 1); */
         M.beginwrite();
-        auto result = T.del(N);
+        auto result = T.del(N + 1);
         M.endwrite();
         return result;
     }
