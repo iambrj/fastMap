@@ -15,7 +15,8 @@ class CompressedTrieNode;
 
 struct BSTNode {
 
-public: char c;
+public:
+    char c;
     unique_ptr<CompressedTrieNode> data;
     BSTNode* left;
     BSTNode* right;
@@ -26,16 +27,21 @@ public: char c;
 
 class BST {
 
-public:    BSTNode* root;
+public:
+    BSTNode* root;
     BSTNode* _insert(BSTNode* cur, char c);
     BSTNode* _get(BSTNode* cur, char c);
-    BSTNode* _del(BSTNode* cur, char c);
 
     BST();
     ~BST();
+    //BST(const BST&);
+    BST& operator=(BST b){
+        root = b.root;
+        return *this;
+    }
+    BST (BST&&) noexcept;
     BSTNode* getOrInsert(char c);
     BSTNode* search(char c);
-    void remove(char c);
     BSTNode* getRoot();
     void clear();
 };

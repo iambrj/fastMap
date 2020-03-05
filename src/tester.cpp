@@ -250,6 +250,7 @@ void fileCheck() {
         y.data = NULL;
         z.data = NULL;
 
+        if(i%(int)1e4 == 0)
                 printf("Completed op %d\n", i);
     }
 

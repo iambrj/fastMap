@@ -88,15 +88,17 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                         newnode->value = std::move(curr_node->value);
                     }
                     // newnode->children = std::move(curr_node->children);
-                    newnode->sucs = std::move(curr_node->sucs);
-
+//                    newnode->sucs = std::move(curr_node->sucs);
+newnode->sucs.root = curr_node->sucs.root;
+//newnode->sucs = curr_node->sucs.getRoot();
+//                    free(curr_node->sucs.getRoot())
                     update_kids(newnode->sucs.getRoot(), newnode.get());
 
                     curr_node->edgelabel = word_to_cmp.substr(0, j);
 
                     curr_node->isLeaf = true;
                     // curr_node->children.clear();
-                    curr_node->sucs.clear();
+                    curr_node->sucs.root = nullptr;
 
                     // curr_node->children[rem_word[0]] = std::move(newnode);
 
@@ -158,7 +160,9 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     newnode->value = std::move(curr_node->value);
                 }
                 // newnode->children = std::move(curr_node->children);
-                newnode->sucs = std::move(curr_node->sucs);
+                 // newnode->sucs = std::move(curr_node->sucs);
+                newnode->sucs.root = curr_node->sucs.root;
+                curr_node->sucs.root = nullptr;
                 newnode->edgelabel = rem_word_j;
                 newnode->parent = curr_node;
                 update_kids(newnode->sucs.getRoot(), newnode.get());
@@ -178,8 +182,8 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 curr_node->edgelabel = match_word;
 
                 // curr_node->children.clear();
-                curr_node->sucs.clear();
-                printf("%p", &curr_node->sucs);
+                curr_node->sucs.root = nullptr;
+//                printf("%p", &curr_node->sucs);
                 // curr_node->children[rem_word_j[0]] = std::move(newnode);
                 curr_node->sucs.getOrInsert(rem_word_j[0])->data =
                         std::move(newnode);
@@ -414,7 +418,7 @@ BSTNode::~BSTNode() {
     }
     if (this->data) {
         this->data.reset();
-        this->data = NULL;
+        this->data = nullptr;
     }
 }
 
@@ -471,6 +475,15 @@ BST::~BST() {
         this->root = nullptr;
     }
 }
+
+/*
+BST::BST(BST&& b) noexcept {
+    root = b.root;
+}
+
+/*BST::BST(const BST& b) {
+    root = b.root;
+}*/
 
 BSTNode *BST::getOrInsert(char c) {
     this->root = this->_insert(this->root, c);
