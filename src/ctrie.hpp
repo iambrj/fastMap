@@ -50,7 +50,8 @@ struct CompressedTrieNode {
 public:
     map<char, unique_ptr<CompressedTrieNode> > children;
     BST sucs;
-    string edgelabel;
+    char* edgelabel;
+    int edgeLabelSize;
     bool isLeaf;
     int num_leafs;
     CompressedTrieNode* parent;

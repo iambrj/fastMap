@@ -1,3 +1,6 @@
+#ifndef FASTER
+#define FASTER
+
 #include <cassert>
 #include "ctrie.hpp"
 #include <cstring>
@@ -6,7 +9,6 @@
 /*     int size; */
 /*     char *data; */
 /* }; */
-
 class kvStore {
    private:
     CompressedTrie T;
@@ -64,3 +66,4 @@ class kvStore {
         return T.del(N);
     }
 };
+#endif
