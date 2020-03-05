@@ -4,6 +4,7 @@
 #include <cassert>
 #include "ctrie.hpp"
 #include <cstring>
+#include "monitor.cpp"
 
 /* struct Slice { */
 /*     int size; */
@@ -12,6 +13,7 @@
 class kvStore {
    private:
     CompressedTrie T;
+    monitor M;
 
    public:
     kvStore(uint64_t max_entries) { }
@@ -27,18 +29,27 @@ class kvStore {
         value.size = len;
         return true;
         */
-        return T.search(key, value);
+        M.beginread();
+        auto result = T.search(key, value);
+        M.endread();
+        return result;
     }
 
     // returns true if value overwritten
     bool put(Slice &key, Slice &value) {
         /* return root->insert(key.data, key.size, value.data, value.size); */
-        return T.insert(key, value);
+        M.beginwrite();
+        auto result = T.insert(key, value);
+        M.endwrite();
+        return result;
     }
 
     bool del(Slice &key) {
         /* return root->erase(key.data, key.size); */
-        return T.del(key);
+        M.beginwrite();
+        auto result = T.del(key);
+        M.endwrite();
+        return result;
     }
 
     // N in benchmark.cpp is zero-indexed
@@ -57,13 +68,19 @@ class kvStore {
         value.size = y;
         return true;
         */
-        return T.search(N, key, value);
+        M.beginread();
+        auto result = T.search(N, key, value); 
+        M.endread();
+        return result;
     }
 
     // delete Nth key-value pair
     bool del(int N) {
         /* return root->erase(N + 1); */
-        return T.del(N);
+        M.beginwrite();
+        auto result = T.del(N);
+        M.endwrite();
+        return result;
     }
 };
 #endif
