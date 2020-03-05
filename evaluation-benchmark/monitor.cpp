@@ -1,26 +1,25 @@
 #include<pthread.h>
-
 class monitor {
 private:
-    // no. of readers 
+    // no. of readers
     int readerCount;
 
-    // no. of writers 
+    // no. of writers
     int writerCount;
 
-    // no. of readers waiting 
+    // no. of readers waiting
     int readerWaitingCount;
 
-    // no. of writers waiting 
+    // no. of writers waiting
     int writerWaitingCount;
 
-    // condition variable to check whether reader can read 
+    // condition variable to check whether reader can read
     pthread_cond_t canread;
 
-    // condition variable to check whether writer can write 
+    // condition variable to check whether writer can write
     pthread_cond_t canwrite;
 
-    // mutex for synchronisation 
+    // mutex for synchronisation
     pthread_mutex_t condlock;
 
 public:
@@ -34,32 +33,33 @@ public:
         a += pthread_cond_init(&canwrite, NULL);
         a += pthread_mutex_init(&condlock, NULL);
         if (a != 0) {
+            _Exit(1);
         }
     }
 
-    // mutex provide synchronisation so that no other thread 
-    // can change the value of data 
+    // mutex provide synchronisation so that no other thread
+    // can change the value of data
     void beginread() {
         pthread_mutex_lock(&condlock);
 
-        // if there are active or waiting writers 
+        // if there are active or waiting writers
         if (writerCount == 1 || writerWaitingCount > 0) {
-            // incrementing waiting readers 
+            // incrementing waiting readers
             readerWaitingCount++;
 
-            // reader suspended 
+            // reader suspended
             pthread_cond_wait(&canread, &condlock);
             readerWaitingCount--;
         }
 
-        // else reader reads the resource 
+        // else reader reads the resource
         readerCount++;
         pthread_mutex_unlock(&condlock);
         pthread_cond_broadcast(&canread);
     }
 
     void endread() {
-        // if there are no readers left then writer enters monitor 
+        // if there are no readers left then writer enters monitor
         pthread_mutex_lock(&condlock);
 
         if (--readerCount == 0)
@@ -71,8 +71,8 @@ public:
     void beginwrite() {
         pthread_mutex_lock(&condlock);
 
-        // a writer can enter when there are no active 
-        // or waiting readers or other writer 
+        // a writer can enter when there are no active
+        // or waiting readers or other writer
         if (writerCount == 1 || readerCount > 0) {
             ++writerWaitingCount;
             pthread_cond_wait(&canwrite, &condlock);
@@ -86,7 +86,7 @@ public:
         pthread_mutex_lock(&condlock);
         writerCount = 0;
 
-        // if any readers are waiting, threads are unblocked 
+        // if any readers are waiting, threads are unblocked
         if (readerWaitingCount > 0)
             pthread_cond_signal(&canread);
         else

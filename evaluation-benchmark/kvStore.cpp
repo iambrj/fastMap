@@ -14,41 +14,32 @@ class kvStore {
    private:
     CompressedTrie T;
     monitor M;
+    pthread_mutex_t lock;
 
    public:
     kvStore(uint64_t max_entries) { }
 
     // returns false if key didn’t exist
     bool get(Slice &key, Slice &value) {
-        /*
-        int len;
-        char *found = root->lookup(key.data, key.size, len);
-        if (!found)
-            return false;
-        value.data = found;
-        value.size = len;
-        return true;
-        */
-        M.beginread();
+        pthread_mutex_lock(&lock);
         auto result = T.search(key, value);
-        M.endread();
+        pthread_mutex_unlock(&lock);
         return result;
     }
 
     // returns true if value overwritten
     bool put(Slice &key, Slice &value) {
-        /* return root->insert(key.data, key.size, value.data, value.size); */
-        M.beginwrite();
+        pthread_mutex_lock(&lock);
+        auto exists = T.del(key);
         auto result = T.insert(key, value);
-        M.endwrite();
-        return result;
+        pthread_mutex_unlock(&lock);
+        return exists;
     }
 
     bool del(Slice &key) {
-        /* return root->erase(key.data, key.size); */
-        M.beginwrite();
+        pthread_mutex_lock(&lock);
         auto result = T.del(key);
-        M.endwrite();
+        pthread_mutex_unlock(&lock);
         return result;
     }
 
@@ -57,29 +48,18 @@ class kvStore {
 
     // returns Nth key-value pair
     bool get(int N, Slice &key, Slice &value) {
-        /*
-        int x = 0, y = 0;
-        bool found = root->lookupN(N + 1, &key.data, &value.data, x, y);
-
-        if (!found)
-            return false;
-
-        key.size = x;
-        value.size = y;
-        return true;
-        */
-        M.beginread();
-        auto result = T.search(N + 1, key, value); 
-        M.endread();
+        pthread_mutex_lock(&lock);
+        auto result = T.search(N + 1, key, value);
+        pthread_mutex_unlock(&lock);
         return result;
     }
 
     // delete Nth key-value pair
     bool del(int N) {
         /* return root->erase(N + 1); */
-        M.beginwrite();
+        pthread_mutex_lock(&lock);
         auto result = T.del(N + 1);
-        M.endwrite();
+        pthread_mutex_unlock(&lock);
         return result;
     }
 };

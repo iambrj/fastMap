@@ -66,15 +66,15 @@ void *myThreadFun(void *vargp)
 			int x = rand()%5;
 			if(x==0)
 			{
-				string key = random_key(rand()%64 + 1);
+				string key = random_key(rand()%10 + 1);
 				Slice s_key,s_value;
 				strToSlice(key,s_key);
 				bool ans = kv.get(s_key,s_value);
 			}
 			else if(x==1)
 			{
-				string key = random_key(rand()%64 + 1);
-				string value = random_value(rand()%255 + 1);
+				string key = random_key(rand()%10 + 1);
+				string value = random_value(rand()%10 + 1);
 				Slice s_key,s_value,temp;
 				strToSlice(key,s_key);
 				strToSlice(value,s_value);
@@ -123,15 +123,16 @@ void *myThreadFun(void *vargp)
 
 int main()
 {
-	int put_enteries = 1000;
+    srand(0);
+	int put_enteries = 100000;
 	time_t start_p,end_p;
 	float put_time = 0;
 	vector<Slice> keys;
 	vector<Slice> values;
 	for(int i=0;i<put_enteries;i++)
 	{
-		string key = random_key(rand()%63 + 1);
-		string value = random_value(rand()%254 + 1);
+		string key = random_key(rand()%10 + 1);
+		string value = random_value(rand()%10 + 1);
 		db[key] = value;
 		Slice k,v;
 		strToSlice(key,k);
@@ -150,13 +151,13 @@ int main()
 
 	bool incorrect = false;
 
-	for(int i=0;i<10000;i++)
+	for(int i=0;i<000;i++)
 	{
 		int x = rand()%5;
         if(x>1&&!db_size) x = 1;
 		if(x==0)
 		{
-			string key = random_key(rand()%64 + 1);
+			string key = random_key(rand()%10 + 1);
 			Slice s_key,s_value;
 			strToSlice(key,s_key);
 			bool ans = kv.get(s_key,s_value);
@@ -166,8 +167,8 @@ int main()
 		}
 		else if(x==1)
 		{
-			int k = rand()%64 + 1;
-			int v = rand()%255 + 1;
+			int k = rand()%10 + 1;
+			int v = rand()%10 + 1;
 			string key = random_key(k);
 			string value = random_value(v);
 			db[key] = value;
@@ -221,7 +222,7 @@ int main()
 			strToSlice(key,s_key);
 			bool check2 = kv.get(s_key,s_value);
 			if(check2 == true)
-				incorrect = true;
+			incorrect = true;
 		}
 	if(incorrect == true)
 	{
@@ -230,7 +231,6 @@ int main()
 	}
 	}
 		cout<<"CORRECT OUTPUT"<<endl;
-        return 0;
 	int threads = 4;
 
 	pthread_t tid[threads];
