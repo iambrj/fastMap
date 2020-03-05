@@ -34,8 +34,6 @@ public:
         a += pthread_cond_init(&canwrite, NULL);
         a += pthread_mutex_init(&condlock, NULL);
         if (a != 0) {
-            printf("One or more mutexes couldn't be initialized.");
-            exit(1);
         }
     }
 
