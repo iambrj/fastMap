@@ -33,7 +33,6 @@ public:
         a += pthread_cond_init(&canwrite, NULL);
         a += pthread_mutex_init(&condlock, NULL);
         if (a != 0) {
-            _Exit(1);
         }
     }
 

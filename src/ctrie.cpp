@@ -38,6 +38,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
         CompressedTrieNode *curr_node = bstnode->data.get();
         curr_node->edgelabel = keyPointer;
         curr_node->edgeLabelSize = key.size;
+        int should = curr_node->isLeaf == false;
         curr_node->isLeaf = true;
         curr_node->parent = root.get();
 
@@ -45,7 +46,8 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
         Slice *newSlice = curr_node->value.get();
         newSlice->size = value.size;
         newSlice->data = value.data; // new char[value.size + 1];
-        inc(curr_node, 1);
+        inc(curr_node, should);
+        return should;
     } else {
         int i = 0, j = 0;
         // CompressedTrieNode* curr_node = root->children[word[0]].get();
@@ -69,13 +71,15 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
             if (i == key.size) {
                 // j also complete - mark this as leaf node
                 if (j == wtcSize) {
+                    int shouldInc = curr_node->isLeaf == false;
                     curr_node->isLeaf = true;
                     /* curr_node->num_leafs++; */
                     curr_node->value = make_unique<Slice>();
                     Slice *newSlice = curr_node->value.get();
                     newSlice->size = value.size;
                     newSlice->data = value.data;
-                    inc(curr_node, 1);
+                    inc(curr_node, shouldInc);
+                    return shouldInc;
                 }
                     // j remaining - split word into 2
                 else {
@@ -100,6 +104,7 @@ newnode->sucs.root = curr_node->sucs.root;
                     curr_node->edgelabel =  word_to_cmp;
                     curr_node->edgeLabelSize = j;
 
+                    int shouldInc = curr_node->isLeaf == false;
                     curr_node->isLeaf = true;
                     // curr_node->children.clear();
                     curr_node->sucs.root = nullptr;
@@ -112,7 +117,7 @@ newnode->sucs.root = curr_node->sucs.root;
                     Slice *newSlice = curr_node->value.get();
                     newSlice->size = value.size;
                     newSlice->data = value.data; //  new char[value.size + 1];
-                    inc(curr_node, 1);
+                    inc(curr_node, shouldInc);
                 }
             }
                 // i not complete, j complete
@@ -132,6 +137,7 @@ newnode->sucs.root = curr_node->sucs.root;
                     curr_node = node->data.get();
                     curr_node->edgelabel = keyPointer;
                     curr_node->edgeLabelSize = key.size - i;
+                    int shouldInc = curr_node->isLeaf == false;
                     curr_node->isLeaf = true;
                     /* curr_node->num_leafs++; */
                     curr_node->parent = curr_parent;
@@ -140,7 +146,8 @@ newnode->sucs.root = curr_node->sucs.root;
                     Slice *newSlice = curr_node->value.get();
                     newSlice->size = value.size;
                     newSlice->data = value.data; // new char[value.size + 1];
-                    inc(curr_node, 1);
+                    inc(curr_node, shouldInc);
+                    return shouldInc;
 
                 } else {
                     // remaining edge - continue with matching
@@ -182,6 +189,7 @@ newnode->sucs.root = curr_node->sucs.root;
                 newSlice->size = value.size;
                 newSlice->data = value.data; // new char[value.size + 1];
 
+                int should = curr_node->isLeaf == false;
                 curr_node->isLeaf = false;
                 curr_node->edgelabel = match_word;
                 curr_node->edgeLabelSize = j;
@@ -198,9 +206,10 @@ newnode->sucs.root = curr_node->sucs.root;
                 auto node = curr_node->sucs.getOrInsert(x);
                 node->data = std::move(newnode2);
 
-                inc(curr_node, 1);
+                inc(curr_node, should);
 
                 i = key.size;
+                return should;
             }
         }
     }
