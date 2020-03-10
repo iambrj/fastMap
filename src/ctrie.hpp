@@ -34,7 +34,6 @@ public:
 
     BST();
     ~BST();
-    //BST(const BST&);
     BST& operator=(BST b){
         root = b.root;
         return *this;
@@ -77,4 +76,4 @@ public:
     bool search(const int& N, Slice& A, Slice& B);
 };
 
-#endif /* trie_h */
+#endif

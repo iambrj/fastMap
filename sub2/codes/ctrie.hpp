@@ -34,12 +34,10 @@ public:
 
     BST();
     ~BST();
-    //BST(const BST&);
     BST& operator=(BST b){
         root = b.root;
         return *this;
     }
-    BST (BST&&) noexcept;
     BSTNode* getOrInsert(char c);
     BSTNode* search(char c);
     BSTNode* getRoot();
@@ -77,4 +75,4 @@ public:
     bool search(const int& N, Slice& A, Slice& B);
 };
 
-#endif /* trie_h */
+#endif
