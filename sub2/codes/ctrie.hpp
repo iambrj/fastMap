@@ -1,6 +1,7 @@
 #ifndef trie_h
 #define trie_h
 
+#include "bst.h"
 #include <iostream>
 #include <map>
 
@@ -9,48 +10,6 @@ using namespace std;
 struct Slice {
     uint8_t size;
     char *data;
-};
-
-class CompressedTrieNode;
-
-struct BSTNode {
-
-public:
-    char c;
-    CompressedTrieNode *data;
-    BSTNode *left;
-    BSTNode *right;
-
-    explicit BSTNode(char c);
-
-    ~BSTNode();
-};
-
-class BST {
-
-public:
-    BSTNode *root;
-
-    BSTNode *_insert(BSTNode *cur, char c);
-
-    BSTNode *_get(BSTNode *cur, char c);
-
-    BST();
-
-    ~BST();
-
-    BST &operator=(BST b) {
-        root = b.root;
-        return *this;
-    }
-
-    BSTNode *getOrInsert(char c);
-
-    BSTNode *search(char c);
-
-    BSTNode *getRoot();
-
-    void clear();
 };
 
 struct CompressedTrieNode {
@@ -74,6 +33,7 @@ public:
 enum types {
     IS_SEARCH, IS_DEL
 };
+
 class CompressedTrie {
 public:
     CompressedTrieNode *root;
@@ -91,7 +51,9 @@ public:
 
 
     bool search(const Slice &key, Slice &value) const;
+
     bool searchDelWrapper(const Slice &key, Slice &value, enum types type) const;
+
     bool del(const Slice &key);
 
     bool del(const int &N);

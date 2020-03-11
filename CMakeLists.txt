@@ -7,4 +7,4 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(src)
 
-add_executable(runner sub2/codes/ctrie.cpp sub2/codes/kvStore.cpp sub2/codes/ctrie.hpp sub2/codes/benchmark.cpp)
+add_executable(runner sub2/codes/ctrie.cpp sub2/codes/kvStore.cpp sub2/codes/benchmark.cpp sub2/codes/bst.cpp )

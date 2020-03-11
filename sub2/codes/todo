@@ -1,0 +1,2 @@
+- refactoro out similar statements into functions
+- remove unique pointers in favor of c pointesr
