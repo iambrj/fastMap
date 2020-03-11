@@ -41,10 +41,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
         curr_node->isLeaf = true;
         curr_node->parent = root;
 
-        curr_node->value = new Slice();
-        Slice *newSlice = curr_node->value;
-        newSlice->size = value.size;
-        newSlice->data = value.data;
+        curr_node->value = new Slice(value.data, value.size);
         inc(curr_node, 1);
         return false;
     } else {
@@ -73,10 +70,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     if (curr_node->isLeaf)
                         should = true;
                     curr_node->isLeaf = true;
-                    curr_node->value = new Slice();
-                    Slice *newSlice = curr_node->value;
-                    newSlice->size = value.size;//*0x5587d6d62b20
-                    newSlice->data = value.data;
+                    curr_node->value = new Slice(value.data, value.size);
                     inc(curr_node, !should);
                     return should;
                 }
@@ -105,10 +99,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
 
                     curr_node->sucs.getOrInsert(rem_word[0])->data = newnode;
 
-                    curr_node->value = new Slice();
-                    Slice *newSlice = curr_node->value;
-                    newSlice->size = value.size;
-                    newSlice->data = value.data;
+                    curr_node->value = new Slice(value.data, value.size);
                     inc(curr_node, 1);
                     return false;
 
@@ -129,10 +120,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     curr_node->isLeaf = true;
                     curr_node->parent = curr_parent;
                     i = key.size;
-                    curr_node->value = new Slice();
-                    Slice *newSlice = curr_node->value;
-                    newSlice->size = value.size;
-                    newSlice->data = value.data; // new char[value.size + 1];
+                    curr_node->value = new Slice(value.data, value.size);
                     inc(curr_node, 1);
 
                 } else {
@@ -168,11 +156,8 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 newnode2->num_leafs++;
                 newnode2->edgelabel = rem_word_i;
                 newnode2->edgeLabelSize = key.size - i;
-                newnode2->value = new Slice();
                 newnode2->parent = curr_node;
-                Slice *newSlice = newnode2->value;
-                newSlice->size = value.size;
-                newSlice->data = value.data;
+                newnode2->value = new Slice(value.data, value.size);
 
                 curr_node->isLeaf = false;
                 curr_node->edgelabel = match_word;

@@ -10,6 +10,9 @@ using namespace std;
 struct Slice {
     uint8_t size;
     char *data;
+
+    Slice(char* d, int s): size(s), data(d) {}
+    Slice(){}
 };
 
 struct CompressedTrieNode {
