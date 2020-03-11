@@ -8,7 +8,7 @@ CompressedTrie::CompressedTrie() {
     root->parent = nullptr;
 }
 
-void update_kids(BSTNode *r, CompressedTrieNode *val) {
+void updateChildren(BSTNode *r, CompressedTrieNode *val) {
     if (!r) return;
     update_kids(r->left, val);
     update_kids(r->right, val);

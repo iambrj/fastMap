@@ -9,10 +9,10 @@ CompressedTrie::CompressedTrie() {
     root->parent = nullptr;
 }
 
-void update_kids(BSTNode *r, CompressedTrieNode *val) {
+void updateChildren(BSTNode *r, CompressedTrieNode *val) {
     if (!r) return;
-    update_kids(r->left, val);
-    update_kids(r->right, val);
+    updateChildren(r->left, val);
+    updateChildren(r->right, val);
     r->data->parent = val;
 }
 
@@ -89,7 +89,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
 
                     newnode->sucs.root = curr_node->sucs.root;
 
-                    update_kids(newnode->sucs.getRoot(), newnode);
+                    updateChildren(newnode->sucs.getRoot(), newnode);
 
                     curr_node->edgelabel = word_to_cmp;
                     curr_node->edgeLabelSize = j;
@@ -149,7 +149,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 newnode->edgelabel = rem_word_j;
                 newnode->edgeLabelSize = wtcSize - j;
                 newnode->parent = curr_node;
-                update_kids(newnode->sucs.getRoot(), newnode);
+                updateChildren(newnode->sucs.getRoot(), newnode);
 
                 auto *newnode2 = new CompressedTrieNode();
                 newnode2->isLeaf = true;
@@ -167,8 +167,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                 curr_node->sucs.getOrInsert(rem_word_j[0])->data =
                         newnode;
 
-                char x = rem_word_i[0];
-                auto node = curr_node->sucs.getOrInsert(x);
+                auto node = curr_node->sucs.getOrInsert(*rem_word_i);
                 node->data = newnode2;
 
                 inc(curr_node, 1);
