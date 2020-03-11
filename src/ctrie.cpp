@@ -38,7 +38,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
         CompressedTrieNode *curr_node = bstnode->data.get();
         curr_node->edgelabel = keyPointer;
         curr_node->edgeLabelSize = key.size;
-        int should = curr_node->isLeaf == false;
+        int should = !curr_node->isLeaf;
         curr_node->isLeaf = true;
         curr_node->parent = root.get();
 
@@ -71,7 +71,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
             if (i == key.size) {
                 // j also complete - mark this as leaf node
                 if (j == wtcSize) {
-                    int shouldInc = curr_node->isLeaf == false;
+                    int shouldInc = !curr_node->isLeaf;
                     curr_node->isLeaf = true;
                     /* curr_node->num_leafs++; */
                     curr_node->value = make_unique<Slice>();
@@ -104,7 +104,7 @@ newnode->sucs.root = curr_node->sucs.root;
                     curr_node->edgelabel =  word_to_cmp;
                     curr_node->edgeLabelSize = j;
 
-                    int shouldInc = curr_node->isLeaf == false;
+                    int shouldInc = !curr_node->isLeaf;
                     curr_node->isLeaf = true;
                     // curr_node->children.clear();
                     curr_node->sucs.root = nullptr;
@@ -137,7 +137,7 @@ newnode->sucs.root = curr_node->sucs.root;
                     curr_node = node->data.get();
                     curr_node->edgelabel = keyPointer;
                     curr_node->edgeLabelSize = key.size - i;
-                    int shouldInc = curr_node->isLeaf == false;
+                    int shouldInc = !curr_node->isLeaf;
                     curr_node->isLeaf = true;
                     /* curr_node->num_leafs++; */
                     curr_node->parent = curr_parent;
@@ -189,7 +189,7 @@ newnode->sucs.root = curr_node->sucs.root;
                 newSlice->size = value.size;
                 newSlice->data = value.data; // new char[value.size + 1];
 
-                int should = curr_node->isLeaf == false;
+                int should = !curr_node->isLeaf;
                 curr_node->isLeaf = false;
                 curr_node->edgelabel = match_word;
                 curr_node->edgeLabelSize = j;
@@ -217,7 +217,7 @@ newnode->sucs.root = curr_node->sucs.root;
     return true;
 }
 
-bool search_kids_stuff(BSTNode *r, char *keyPointer, int keySize, Slice &A, Slice &B, int &remaining, char *kOrg) {
+bool searchKidsHelper(BSTNode *r, char *keyPointer, int keySize, Slice &A, Slice &B, int &remaining, char *kOrg) {
     if (!r) return false;
 
     if (search_kids_stuff(r->left, keyPointer, keySize, A, B, remaining, kOrg)) return true;
@@ -261,7 +261,7 @@ bool CompressedTrie::search(const int &N, Slice &A, Slice &B) {
     return search_kids_stuff(root->sucs.getRoot(), keyPointer, keySize, A, B, left, kOrg);
 }
 
-bool del_kids_stuff(BSTNode *r, int &remaining) {
+bool delKidsHelper(BSTNode *r, int &remaining) {
     if (!r) return false;
 
     if (del_kids_stuff(r->left, remaining)) return true;

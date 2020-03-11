@@ -14,13 +14,13 @@ class TrieNode {
     char *value;
     int valueLen;
 
-    int getIndex(char c) {
+    static int getIndex(char c) {
         if (c < 'a')
             return c - 'A';
         return (c - 'a') + (RANGE / 2);
     }
 
-    char getChar(int idx) {
+    static char getChar(int idx) {
         if (RANGE / 2 <= idx)
             return (char)((idx - RANGE / 2) + 'a');
 

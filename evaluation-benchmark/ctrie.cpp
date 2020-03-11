@@ -38,7 +38,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
         CompressedTrieNode *curr_node = bstnode->data.get();
         curr_node->edgelabel = keyPointer;
         curr_node->edgeLabelSize = key.size;
-        int should = curr_node->isLeaf == false;
+        int should = !curr_node->isLeaf;
         curr_node->isLeaf = true;
         curr_node->parent = root.get();
 
@@ -70,7 +70,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
             if (i == key.size) {
                 // j also complete - mark this as leaf node
                 if (j == wtcSize) {
-                    int should = curr_node->isLeaf == false;
+                    int should = !curr_node->isLeaf;
                     curr_node->isLeaf = true;
                     curr_node->value = make_unique<Slice>();
                     Slice *newSlice = curr_node->value.get();
@@ -99,7 +99,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     curr_node->edgelabel = word_to_cmp;
                     curr_node->edgeLabelSize = j;
 
-                    int should = curr_node->isLeaf == false;
+                    int should = !curr_node->isLeaf;
                     curr_node->isLeaf = true;
                     // curr_node->children.clear();
                     curr_node->sucs.root = nullptr;
@@ -132,7 +132,7 @@ bool CompressedTrie::insert(const Slice &key, const Slice &value) {
                     curr_node = node->data.get();
                     curr_node->edgelabel = keyPointer;
                     curr_node->edgeLabelSize = key.size - i;
-                    int should = curr_node->isLeaf == false;
+                    int should = !curr_node->isLeaf;
 
                     curr_node->isLeaf = true;
                     /* curr_node->num_leafs++; */

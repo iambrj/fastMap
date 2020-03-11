@@ -17,14 +17,14 @@ string sliceToStr(Slice &a) {
     return ret;
 }
 
-void strToSlice(string l, Slice &a) {
+void strToSlice(const string& l, Slice &a) {
     a.size = l.length();
     a.data = (char *)malloc(a.size);
     strncpy(a.data, l.c_str(), a.size);
 }
 
 string random_key(int stringLength) {
-    string k = "";
+    string k;
     string letters = "";
     for (char i = 'a'; i <= 'z'; i++)
         letters += i;

@@ -43,7 +43,7 @@ public:
     ~CompressedTrie() {
         if (root) {
             free(root);
-            root = NULL;
+            root = nullptr;
         }
     }
 
