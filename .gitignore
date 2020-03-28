@@ -1,2 +1,11 @@
 .vscode/*
+submit
+*.zip
+.idea
+cmake-*
+.ycm*
 a.out
+*.out
+cmake-build-debug
+CMakeLists.txt
+*.txt
