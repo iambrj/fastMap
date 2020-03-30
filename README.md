@@ -9,7 +9,11 @@
 
 [Link to detailed implementation spec](https://docs.google.com/document/d/1YPywCODZPhzKSr9QRMuAZ-Gxe3JDBI5e4JqsmdUXx28/edit?usp=sharing)
 
-### Scope for improvement:
+## Usage
+
+Including the file `src/kvStore.cpp` in your source file should be enough. Note that C++14 or newer is required to compile successfully.
+
+## Scope for improvement
 
 PRs welcome!
 
